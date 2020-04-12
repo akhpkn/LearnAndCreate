@@ -1,8 +1,10 @@
 package com.lac.payload;
 
 import lombok.Builder;
+import lombok.Getter;
 
 @Builder
+@Getter
 public class CourseInfo {
 
     private final long courseId;
