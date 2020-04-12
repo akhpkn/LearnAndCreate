@@ -167,18 +167,18 @@ public class CourseController {
         Course course = courseRepository.findByCourseId(courseId);
         if (course == null)
             return new ResponseEntity<>(new ApiResponse(false, "course doesn't exist"), HttpStatus.BAD_REQUEST);
-        CourseInfo info = new CourseInfo(
-                course.getCourseId(),
-                course.getTitle(),
-                course.getDescription(),
-                course.getImage().getUrl(),
-                course.getCategory().getName(),
-                course.getMark(),
-                course.getNumMarks(),
-                course.getUsers().size(),
-                course.getLessons().size(),
-                course.getComments().size()
-        );
+        CourseInfo info = CourseInfo.builder()
+                .courseId(course.getCourseId())
+                .category(course.getCategory().getName())
+                .description(course.getDescription())
+                .imageUrl(course.getImage().getUrl())
+                .lessonsNumber(course.getLessons().size())
+                .mark(course.getMark())
+                .marksNumber(course.getNumMarks())
+                .reviewsNumber(course.getComments().size())
+                .subsNumber(course.getUsers().size())
+                .title(course.getTitle())
+                .build();
         return new ResponseEntity<>(info, HttpStatus.OK);
     }
 }
