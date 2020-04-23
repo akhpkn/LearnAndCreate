@@ -105,22 +105,22 @@ public class CourseController {
 
     @PostMapping("/{courseId}")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<Void> subscribeCourse(@CurrentUser UserPrincipal currentUser,
-                                                @PathVariable("courseId") Long courseId) {
+    public ResponseEntity<?> subscribeCourse(@CurrentUser UserPrincipal currentUser,
+                                             @PathVariable("courseId") Long courseId) {
         boolean flag = courseService.subscribeCourse(currentUser, courseId);
         if (flag)
-            return new ResponseEntity<>(HttpStatus.OK);
-        else return new ResponseEntity<>(HttpStatus.CONFLICT);
+            return new ResponseEntity<>(new ApiResponse(true, "You subscribed to the course"), HttpStatus.OK);
+        else return new ResponseEntity<>(new ApiResponse(false, "Error"), HttpStatus.CONFLICT);
     }
 
     @DeleteMapping("/{courseId}")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<Void> unsubscribeCourse(@CurrentUser UserPrincipal currentUser,
-                                                  @PathVariable("courseId") Long courseId) {
+    public ResponseEntity<?> unsubscribeCourse(@CurrentUser UserPrincipal currentUser,
+                                               @PathVariable("courseId") Long courseId) {
         boolean flag = courseService.unsubscribeCourse(currentUser, courseId);
         if (flag)
-            return new ResponseEntity<>(HttpStatus.OK);
-        else return new ResponseEntity<>(HttpStatus.CONFLICT);
+            return new ResponseEntity<>(new ApiResponse(true, "You unsubscribed from the course"), HttpStatus.OK);
+        else return new ResponseEntity<>(new ApiResponse(false, "Error"), HttpStatus.CONFLICT);
     }
 
     @PostMapping("{courseId}/lesson")
