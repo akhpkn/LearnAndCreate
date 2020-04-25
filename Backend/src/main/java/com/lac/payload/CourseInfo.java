@@ -20,4 +20,5 @@ public class CourseInfo {
     private final int lessonsNumber;
     private final int reviewsNumber;
 
+    private final boolean subscribed;
 }

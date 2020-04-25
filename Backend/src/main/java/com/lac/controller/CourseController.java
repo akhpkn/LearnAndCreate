@@ -1,19 +1,18 @@
 package com.lac.controller;
 
 
-import com.lac.model.Comment;
-import com.lac.model.Course;
-import com.lac.model.Image;
-import com.lac.model.Lesson;
+import com.lac.model.*;
 import com.lac.payload.*;
 import com.lac.repository.CommentRepository;
 import com.lac.repository.CourseRepository;
+import com.lac.repository.LessonRepository;
 import com.lac.repository.UserRepository;
 import com.lac.security.CurrentUser;
 import com.lac.security.UserPrincipal;
 import com.lac.service.CommentService;
 import com.lac.service.CourseService;
 import com.lac.service.ImageService;
+import com.lac.service.VideoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -39,6 +38,9 @@ public class CourseController {
     private CourseService courseService;
 
     @Autowired
+    private VideoService videoService;
+
+    @Autowired
     private CommentRepository commentRepository;
 
     @Autowired
@@ -49,6 +51,9 @@ public class CourseController {
 
     @Autowired
     private CourseRepository courseRepository;
+
+    @Autowired
+    private LessonRepository lessonRepository;
 
     @GetMapping("{courseId}")
     @PreAuthorize("hasRole('USER')")
@@ -138,6 +143,26 @@ public class CourseController {
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
+//    @PostMapping(value = "{courseId}/lessonvideo", consumes = {"multipart/mixed"})
+//    public ResponseEntity<?> addLessonWithVideo(@PathVariable("courseId") Long courseId,
+//                                                @Valid @RequestPart LessonRequest lessonRequest,
+//                                                @RequestParam("file") MultipartFile file) throws IOException {
+//        Lesson lesson = new Lesson();
+//        lesson.setTitle(lessonRequest.getTitle());
+//        lesson.setDescription(lessonRequest.getDescription());
+//        lesson.setDuration(lessonRequest.getDuration());
+//
+//        Video video = videoService.store(file);
+//        lesson.setVideo(video);
+//        lessonRepository.save(lesson);
+//
+//        Course course = courseRepository.findByCourseId(courseId);
+//        course.addLesson(lesson);
+//        courseRepository.save(course);
+//
+//        return new ResponseEntity<>(new UploadFileResponse(video.getUrl(), video.getType(), file.getSize()), HttpStatus.OK);
+//    }
+
     @GetMapping("/{courseId}/lessons")
     public ResponseEntity<List<Lesson>> getCourseLessons(@PathVariable("courseId") Long courseId) {
         List<Lesson> lessons = courseService.getLessonsByCourseId(courseId);
@@ -163,14 +188,18 @@ public class CourseController {
     }
 
     @GetMapping("{courseId}/info")
-    public ResponseEntity<?> getCourseInfo(@PathVariable("courseId") Long courseId) {
+    public ResponseEntity<?> getCourseInfo(@CurrentUser UserPrincipal currentUser,
+                                           @PathVariable("courseId") Long courseId) {
         Course course = courseRepository.findByCourseId(courseId);
+        User user = userRepository.findByUserId(currentUser.getUserId());
+        boolean subscribed = user.getCourses().contains(course);
         if (course == null)
             return new ResponseEntity<>(new ApiResponse(false, "course doesn't exist"), HttpStatus.BAD_REQUEST);
         CourseInfo info = CourseInfo.builder()
                 .courseId(course.getCourseId())
                 .category(course.getCategory().getName())
                 .description(course.getDescription())
+                .descriptionLong(course.getDescriptionLong())
                 .imageUrl(course.getImage().getUrl())
                 .lessonsNumber(course.getLessons().size())
                 .mark(course.getMark())
@@ -178,6 +207,7 @@ public class CourseController {
                 .reviewsNumber(course.getComments().size())
                 .subsNumber(course.getUsers().size())
                 .title(course.getTitle())
+                .subscribed(subscribed)
                 .build();
         return new ResponseEntity<>(info, HttpStatus.OK);
     }
