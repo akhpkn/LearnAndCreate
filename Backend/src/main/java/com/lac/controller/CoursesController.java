@@ -104,7 +104,7 @@ public class CoursesController {
     @PostMapping
     public ResponseEntity<Void> addCourse(@Valid @RequestBody CourseRequest request) {
         Category category = categoryRepository.findByName(request.getCategoryName());
-        Course course = new Course(request.getTitle(), request.getDescription(), category);
+        Course course = new Course(request.getTitle(), request.getDescription(), request.getDescriptionLong(), category);
         boolean flag = coursesService.addCourse(course);
         if (!flag)
             return new ResponseEntity<>(HttpStatus.CONFLICT);

@@ -171,6 +171,7 @@ public class CourseController {
                 .courseId(course.getCourseId())
                 .category(course.getCategory().getName())
                 .description(course.getDescription())
+                .descriptionLong(course.getDescriptionLong())
                 .imageUrl(course.getImage().getUrl())
                 .lessonsNumber(course.getLessons().size())
                 .mark(course.getMark())

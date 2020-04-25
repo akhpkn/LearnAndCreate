@@ -9,10 +9,14 @@ public class CourseRequest {
     private String title;
 
     @NotBlank
-    @Size(max = 10000)
+    @Size(max = 500)
     private String description;
 
-//    @NotBlank
+    @NotBlank
+    @Size(max = 1000)
+    private String descriptionLong;
+
+    //    @NotBlank
     private String categoryName;
 
     public String getDescription() {
@@ -25,6 +29,14 @@ public class CourseRequest {
 
     public String getCategoryName() {
         return categoryName;
+    }
+
+    public String getDescriptionLong() {
+        return descriptionLong;
+    }
+
+    public void setDescriptionLong(String descriptionLong) {
+        this.descriptionLong = descriptionLong;
     }
 
     public void setCategoryName(String categoryName) {

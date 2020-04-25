@@ -10,6 +10,7 @@ public class CourseInfo {
     private final long courseId;
     private final String title;
     private final String description;
+    private final String descriptionLong;
 
     private final String imageUrl;
     private final String category;

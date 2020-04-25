@@ -20,8 +20,13 @@ public class Course {
     private String title;
 
     @NotBlank
-    @Size(max = 10000)
+    @Size(max = 500)
     private String description;
+
+    @NotBlank
+    @Size(max = 1000)
+    @Column(name = "description_long")
+    private String descriptionLong;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinTable(name = "course_image",
@@ -94,10 +99,19 @@ public class Course {
 
     }
 
-    public Course(String title, String description, Category category) {
+    public Course(String title, String description, String descriptionLong, Category category) {
         this.title = title;
         this.description = description;
+        this.descriptionLong = descriptionLong;
         this.category = category;
+    }
+
+    public String getDescriptionLong() {
+        return descriptionLong;
+    }
+
+    public void setDescriptionLong(String descriptionLong) {
+        this.descriptionLong = descriptionLong;
     }
 
     public String getTitle() {
