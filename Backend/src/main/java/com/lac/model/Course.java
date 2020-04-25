@@ -34,6 +34,12 @@ public class Course {
             inverseJoinColumns = @JoinColumn(name = "file_id"))
     private Image image;
 
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinTable(name = "course_video",
+            joinColumns = @JoinColumn(name = "course_id"),
+            inverseJoinColumns = @JoinColumn(name = "file_id"))
+    private Video video;
+
     @ManyToOne
     @JoinTable(name = "course_category",
             joinColumns = @JoinColumn(name = "course_id"),
@@ -112,6 +118,15 @@ public class Course {
 
     public void setDescriptionLong(String descriptionLong) {
         this.descriptionLong = descriptionLong;
+    }
+
+
+    public Video getVideo() {
+        return video;
+    }
+
+    public void setVideo(Video video) {
+        this.video = video;
     }
 
     public String getTitle() {

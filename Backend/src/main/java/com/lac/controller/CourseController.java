@@ -1,10 +1,7 @@
 package com.lac.controller;
 
 
-import com.lac.model.Comment;
-import com.lac.model.Course;
-import com.lac.model.Image;
-import com.lac.model.Lesson;
+import com.lac.model.*;
 import com.lac.payload.*;
 import com.lac.repository.CommentRepository;
 import com.lac.repository.CourseRepository;
@@ -14,6 +11,7 @@ import com.lac.security.UserPrincipal;
 import com.lac.service.CommentService;
 import com.lac.service.CourseService;
 import com.lac.service.ImageService;
+import com.lac.service.VideoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -40,6 +38,9 @@ public class CourseController {
 
     @Autowired
     private CommentRepository commentRepository;
+
+    @Autowired
+    private VideoService videoService;
 
     @Autowired
     private UserRepository userRepository;
@@ -160,6 +161,20 @@ public class CourseController {
         if (lesson != null)
             return new ResponseEntity<>(lesson, HttpStatus.OK);
         return new ResponseEntity<>(new ApiResponse(false, "Previous lesson doesn't exist"), HttpStatus.BAD_REQUEST);
+    }
+
+    @PostMapping("{courseId}/video")
+    public UploadFileResponse addVideoToCourse(@PathVariable("courseId") Long courseId,
+                                               @RequestParam("file") MultipartFile file) throws IOException {
+        Course course = courseRepository.findByCourseId(courseId);
+        if (course.getVideo() != null)
+            videoService.deleteVideo(course.getVideo());
+
+        Video video = videoService.store(file);
+        course.setVideo(video);
+        courseRepository.save(course);
+
+        return new UploadFileResponse(video.getUrl(), video.getType(), file.getSize());
     }
 
     @GetMapping("{courseId}/info")
