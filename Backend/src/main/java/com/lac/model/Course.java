@@ -20,14 +20,25 @@ public class Course {
     private String title;
 
     @NotBlank
-    @Size(max = 10000)
+    @Size(max = 500)
     private String description;
+
+    @NotBlank
+    @Size(max = 1000)
+    @Column(name = "description_long")
+    private String descriptionLong;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinTable(name = "course_image",
             joinColumns = @JoinColumn(name = "course_id"),
             inverseJoinColumns = @JoinColumn(name = "file_id"))
     private Image image;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinTable(name = "course_video",
+            joinColumns = @JoinColumn(name = "course_id"),
+            inverseJoinColumns = @JoinColumn(name = "file_id"))
+    private Video video;
 
     @ManyToOne
     @JoinTable(name = "course_category",
@@ -94,10 +105,28 @@ public class Course {
 
     }
 
-    public Course(String title, String description, Category category) {
+    public Course(String title, String description, String descriptionLong, Category category) {
         this.title = title;
         this.description = description;
+        this.descriptionLong = descriptionLong;
         this.category = category;
+    }
+
+    public String getDescriptionLong() {
+        return descriptionLong;
+    }
+
+    public void setDescriptionLong(String descriptionLong) {
+        this.descriptionLong = descriptionLong;
+    }
+
+
+    public Video getVideo() {
+        return video;
+    }
+
+    public void setVideo(Video video) {
+        this.video = video;
     }
 
     public String getTitle() {

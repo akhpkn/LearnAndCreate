@@ -44,6 +44,9 @@ public class CourseController {
     private CommentRepository commentRepository;
 
     @Autowired
+    private VideoService videoService;
+
+    @Autowired
     private UserRepository userRepository;
 
     @Autowired
@@ -185,6 +188,20 @@ public class CourseController {
         if (lesson != null)
             return new ResponseEntity<>(lesson, HttpStatus.OK);
         return new ResponseEntity<>(new ApiResponse(false, "Previous lesson doesn't exist"), HttpStatus.BAD_REQUEST);
+    }
+
+    @PostMapping("{courseId}/video")
+    public UploadFileResponse addVideoToCourse(@PathVariable("courseId") Long courseId,
+                                               @RequestParam("file") MultipartFile file) throws IOException {
+        Course course = courseRepository.findByCourseId(courseId);
+        if (course.getVideo() != null)
+            videoService.deleteVideo(course.getVideo());
+
+        Video video = videoService.store(file);
+        course.setVideo(video);
+        courseRepository.save(course);
+
+        return new UploadFileResponse(video.getUrl(), video.getType(), file.getSize());
     }
 
     @GetMapping("{courseId}/info")
