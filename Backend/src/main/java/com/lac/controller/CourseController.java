@@ -44,9 +44,6 @@ public class CourseController {
     private CommentRepository commentRepository;
 
     @Autowired
-    private VideoService videoService;
-
-    @Autowired
     private UserRepository userRepository;
 
     @Autowired
@@ -208,8 +205,11 @@ public class CourseController {
     public ResponseEntity<?> getCourseInfo(@CurrentUser UserPrincipal currentUser,
                                            @PathVariable("courseId") Long courseId) {
         Course course = courseRepository.findByCourseId(courseId);
-        User user = userRepository.findByUserId(currentUser.getUserId());
-        boolean subscribed = user.getCourses().contains(course);
+        boolean subscribed = false;
+        if (currentUser != null) {
+            User user = userRepository.findByUserId(currentUser.getUserId());
+            subscribed = user.getCourses().contains(course);
+        }
         if (course == null)
             return new ResponseEntity<>(new ApiResponse(false, "course doesn't exist"), HttpStatus.BAD_REQUEST);
         CourseInfo info = CourseInfo.builder()
