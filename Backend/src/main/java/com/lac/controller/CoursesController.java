@@ -13,44 +13,37 @@ import com.lac.security.UserPrincipal;
 import com.lac.service.CoursesService;
 import com.lac.service.ImageService;
 import com.lac.service.VideoService;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import javax.persistence.GeneratedValue;
 import javax.validation.Valid;
 import java.util.List;
 import java.util.Set;
 
 @RestController
 @RequestMapping("/api/courses")
+@RequiredArgsConstructor
 public class CoursesController {
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
-    @Autowired
-    private CoursesService coursesService;
+    private final CoursesService coursesService;
 
-    @Autowired
-    private ImageService imageService;
+    private final ImageService imageService;
 
-    @Autowired
-    private VideoService videoService;
+    private final VideoService videoService;
 
-    @Autowired
-    private CategoryRepository categoryRepository;
+    private final CategoryRepository categoryRepository;
 
-    @Autowired
-    private CourseRepository courseRepository;
+    private final CourseRepository courseRepository;
 
     private static final Logger logger = LoggerFactory.getLogger(CoursesController.class);
 
@@ -104,7 +97,8 @@ public class CoursesController {
     @PostMapping
     public ResponseEntity<Void> addCourse(@Valid @RequestBody CourseRequest request) {
         Category category = categoryRepository.findByName(request.getCategoryName());
-        Course course = new Course(request.getTitle(), request.getDescription(), request.getDescriptionLong(), category);
+        Course course = new Course(request.getTitle(), request.getDescription(), request.getDescriptionLong(),
+                request.getLanguage(), request.getLoad(), category);
         boolean flag = coursesService.addCourse(course);
         if (!flag)
             return new ResponseEntity<>(HttpStatus.CONFLICT);

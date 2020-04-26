@@ -1,27 +1,21 @@
 package com.lac.controller;
 
-import com.lac.model.Comment;
 import com.lac.payload.CommentRequest;
 import com.lac.security.CurrentUser;
 import com.lac.security.UserPrincipal;
 import com.lac.service.CommentService;
-import com.lac.service.CourseService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.lang.UsesSunHttpServer;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
-import java.util.List;
-
 @RestController
 @RequestMapping("api/comment")
+@AllArgsConstructor
 public class CommentController {
 
-    @Autowired
-    private CommentService commentService;
+    private final CommentService commentService;
 
     @DeleteMapping("{commentId}")
     @PreAuthorize("hasRole('USER')")

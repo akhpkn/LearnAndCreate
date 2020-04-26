@@ -1,14 +1,21 @@
 package com.lac.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
-import java.util.*;
+import java.util.Calendar;
+import java.util.TimeZone;
 
 @Table(name = "comments")
 @Entity
+@Getter
+@Setter
+@NoArgsConstructor
 public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,45 +38,9 @@ public class Comment {
             inverseJoinColumns = @JoinColumn(name = "user_id"))
     private User user = new User();
 
-    public Comment(){
-
-    }
-
     public Comment(String text){
         Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
         date = calendar;
         this.text = text;
-    }
-
-    public Long getCommentId() {
-        return commentId;
-    }
-
-    public void setCommentId(Long commentId) {
-        this.commentId = commentId;
-    }
-
-    public String getText() {
-        return text;
-    }
-
-    public void setText(String text) {
-        this.text = text;
-    }
-
-    public Calendar getDate() {
-        return date;
-    }
-
-    public void setDate(Calendar date) {
-        this.date = date;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
     }
 }

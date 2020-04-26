@@ -6,31 +6,27 @@ import com.lac.model.Lesson;
 import com.lac.model.User;
 import com.lac.repository.CommentRepository;
 import com.lac.repository.CourseRepository;
-
 import com.lac.repository.LessonRepository;
 import com.lac.repository.UserRepository;
 import com.lac.security.UserPrincipal;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
 @Service
+@AllArgsConstructor
 public class CourseService {
-    @Autowired
-    CommentRepository commentRepository;
 
-    @Autowired
-    CourseRepository courseRepository;
+    private final CommentRepository commentRepository;
 
-    @Autowired
-    private LessonRepository lessonRepository;
+    private final CourseRepository courseRepository;
 
-    @Autowired
-    UserRepository userRepository;
+    private final LessonRepository lessonRepository;
+
+    private final UserRepository userRepository;
 
     public boolean addMark(Long mark, Long courseId){
         Course course = courseRepository.findByCourseId(courseId);

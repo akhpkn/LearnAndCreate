@@ -1,5 +1,8 @@
 package com.lac.model;
 
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.NaturalId;
 
 import javax.persistence.*;
@@ -7,6 +10,9 @@ import javax.validation.constraints.NotBlank;
 
 @Entity
 @Table(name = "categories")
+@NoArgsConstructor
+@Getter
+@Setter
 public class Category {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -16,24 +22,4 @@ public class Category {
     @NaturalId
     @NotBlank
     private String name;
-
-    public Category() {
-
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public Long getCategoryId() {
-        return categoryId;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setCategoryId(Long categoryId) {
-        this.categoryId = categoryId;
-    }
 }

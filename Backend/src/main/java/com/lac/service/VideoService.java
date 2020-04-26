@@ -6,8 +6,8 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.lac.model.Video;
 import com.lac.repository.FileRepository;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -18,12 +18,12 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 
 @Service
+@RequiredArgsConstructor
 public class VideoService {
-    @Autowired
-    private FileRepository fileRepository;
 
-    @Autowired
-    private AmazonS3 awsS3Client;
+    private final FileRepository fileRepository;
+
+    private final AmazonS3 awsS3Client;
 
     @Value("${jsa.s3.bucket}")
     private String bucketName;

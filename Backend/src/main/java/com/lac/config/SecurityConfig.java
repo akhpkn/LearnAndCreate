@@ -3,7 +3,7 @@ package com.lac.config;
 import com.lac.security.CustomUserDetailsService;
 import com.lac.security.JwtAuthenticationEntryPoint;
 import com.lac.security.JwtAuthenticationFilter;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -25,12 +25,11 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
         securedEnabled = true,
         jsr250Enabled = true,
         prePostEnabled = true)
+@AllArgsConstructor
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
-    @Autowired
-    CustomUserDetailsService customUserDetailsService;
+    private final CustomUserDetailsService customUserDetailsService;
 
-    @Autowired
-    private JwtAuthenticationEntryPoint unauthorizedHandler;
+    private final JwtAuthenticationEntryPoint unauthorizedHandler;
 
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter() {
@@ -81,7 +80,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .permitAll()
                 .antMatchers("/api/auth/**")
                 .permitAll()
-                .antMatchers(HttpMethod.GET, "/api/courses/**", "/api/course/**", "/api/course/**/lesson/**")
+                .antMatchers(HttpMethod.GET, "/api/courses/**", "api/course/**", "/api/course/**")
                 .permitAll()
                 .antMatchers(HttpMethod.POST, "/api/courses", "/api/course/**")
                 .permitAll()

@@ -13,7 +13,7 @@ import com.lac.security.UserPrincipal;
 import com.lac.service.EmailService;
 import com.lac.service.ImageService;
 import com.lac.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -26,25 +26,20 @@ import java.io.IOException;
 
 @RestController
 @RequestMapping("/api")
+@AllArgsConstructor
 public class UserController {
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
-    @Autowired
-    private ImageService imageService;
+    private final ImageService imageService;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
 
-    @Autowired
-    private  UserService userService;
+    private final UserService userService;
 
-    @Autowired
-    private EmailService emailService;
+    private final EmailService emailService;
 
-    @Autowired
-    private EmailConfirmationRepository emailConfirmationRepository;
+    private final EmailConfirmationRepository emailConfirmationRepository;
 
     @GetMapping("/user/me")
     @PreAuthorize("hasRole('USER')")

@@ -4,30 +4,27 @@ import com.lac.model.EmailConfirmation;
 import com.lac.model.User;
 import com.lac.repository.EmailConfirmationRepository;
 import com.lac.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class EmailService {
 
     private static final String PASSWORD_TEXT = "Ваш временный пароль: ";
     private static final String CONFIRMATION_CODE = "Ваш код подвтерждения: ";
 
-    @Autowired
-    private JavaMailSender javaMailSender;
+    private final JavaMailSender javaMailSender;
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
-    @Autowired
-    private EmailConfirmationRepository emailConfirmationRepository;
+    private final EmailConfirmationRepository emailConfirmationRepository;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
 
     public boolean sendPassword(String usernameOrEmail) {
         User receiver = userRepository.findByUsernameOrEmail(usernameOrEmail, usernameOrEmail);

@@ -11,7 +11,7 @@ import com.lac.repository.RoleRepository;
 import com.lac.repository.UserRepository;
 import com.lac.security.JwtTokenProvider;
 import com.lac.service.EmailService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,25 +29,20 @@ import java.util.Collections;
 
 @RestController
 @RequestMapping("/api/auth")
+@AllArgsConstructor
 public class AuthController {
 
-    @Autowired
-    AuthenticationManager authenticationManager;
+    private final AuthenticationManager authenticationManager;
 
-    @Autowired
-    UserRepository userRepository;
+    private final UserRepository userRepository;
 
-    @Autowired
-    RoleRepository roleRepository;
+    private final RoleRepository roleRepository;
 
-    @Autowired
-    PasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
 
-    @Autowired
-    JwtTokenProvider tokenProvider;
+    private final JwtTokenProvider tokenProvider;
 
-    @Autowired
-    private EmailService emailService;
+    private final EmailService emailService;
 
     @PostMapping("/signin")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest request) {
@@ -65,7 +60,6 @@ public class AuthController {
         return ResponseEntity.ok(new JwtAuthenticationResponse(jwt));
     }
 
-
     @PostMapping("/signup")
     public ResponseEntity<?> registerUser(@Valid @RequestBody SignUpRequest request) {
         if (userRepository.existsByUsername(request.getUsername())) {
@@ -77,7 +71,7 @@ public class AuthController {
                     HttpStatus.BAD_REQUEST);
         }
 
-        User user = new User(request.getName(), request.getUsername().toLowerCase(), request.getEmail().toLowerCase(), request.getPassword());
+        User user = new User(request.getName(), request.getUsername(), request.getEmail(), request.getPassword());
 
         Role userRole = roleRepository.findByName(RoleName.ROLE_USER);
         if (userRole == null)

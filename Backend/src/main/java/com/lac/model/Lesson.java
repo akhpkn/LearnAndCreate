@@ -1,6 +1,9 @@
 package com.lac.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
@@ -10,6 +13,9 @@ import java.util.Set;
 
 @Table(name = "lessons")
 @Entity
+@Getter
+@Setter
+@NoArgsConstructor
 public class Lesson {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -40,62 +46,10 @@ public class Lesson {
             inverseJoinColumns = @JoinColumn(name = "comment_id"))
     private Set<Comment> comments = new HashSet<>();
 
-    public  Lesson(){
-
-    }
-
     public Lesson(Long lessonId, String title, String description){
         this.lessonId = lessonId;
         this.title = title;
         this.description = description;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public Long getLessonId() {
-        return lessonId;
-    }
-
-    public Set<Comment> getComments() {
-        return comments;
-    }
-
-    public String getDuration() {
-        return duration;
-    }
-
-    public Video getVideo() {
-        return video;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public void setComments(Set<Comment> comments) {
-        this.comments = comments;
-    }
-
-    public void setDuration(String duration) {
-        this.duration = duration;
-    }
-
-    public void setLessonId(Long lessonId) {
-        this.lessonId = lessonId;
-    }
-
-    public void setVideo(Video video) {
-        this.video = video;
     }
 
     public void addComment(Comment comment){

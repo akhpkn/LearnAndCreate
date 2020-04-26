@@ -1,14 +1,23 @@
 package com.lac.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Table(name = "courses")
 @Entity
+@Getter
+@Setter
+@NoArgsConstructor
 public class Course {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,7 +29,7 @@ public class Course {
     private String title;
 
     @NotBlank
-    @Size(max = 500)
+    @Size(max = 10000)
     private String description;
 
     @NotBlank
@@ -28,9 +37,16 @@ public class Course {
     @Column(name = "description_long")
     private String descriptionLong;
 
+    @Size(max = 100)
+    private String language;
+
+    @Size(max = 100)
+    @Column(name = "course_load")
+    private String load;
+
     @OneToOne(cascade = CascadeType.ALL)
     @JoinTable(name = "course_image",
-            joinColumns = @JoinColumn(name = "course_id"),
+            joinColumns = @JoinColumn(name = "course_id "),
             inverseJoinColumns = @JoinColumn(name = "file_id"))
     private Image image;
 
@@ -101,153 +117,13 @@ public class Course {
 //            inverseJoinColumns =  @JoinColumn(name = "tag_id"))
 //    private Set<Tag> tags = new HashSet<>();// потом заменим на нормальный тег
 
-    public Course() {
-
-    }
-
-    public Course(String title, String description, String descriptionLong, Category category) {
+    public Course(String title, String description, String descriptionLong, String language, String load, Category category) {
         this.title = title;
         this.description = description;
         this.descriptionLong = descriptionLong;
+        this.language = language;
+        this.load = load;
         this.category = category;
-    }
-
-    public String getDescriptionLong() {
-        return descriptionLong;
-    }
-
-    public void setDescriptionLong(String descriptionLong) {
-        this.descriptionLong = descriptionLong;
-    }
-
-
-    public Video getVideo() {
-        return video;
-    }
-
-    public void setVideo(Video video) {
-        this.video = video;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public Long getCourseId() {
-        return courseId;
-    }
-
-    public Category getCategory() {
-        return category;
-    }
-
-    public Image getImage() {
-        return image;
-    }
-
-//    public Video getVideos() {
-//        return video;
-//    }
-
-//    public void setVideos(Video video) {
-//        this.video = video;
-//    }
-
-
-    public void setCategory(Category category) {
-        this.category = category;
-    }
-
-    public void setImage(Image image) {
-        this.image = image;
-    }
-
-    public Set<User> getUsers() {
-        return users;
-    }
-
-    public void setUsers(Set<User> users) {
-        this.users = users;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public void setCourseId(Long courseId) {
-        this.courseId = courseId;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-//    public Date getDate() {
-//        return date;
-//    }
-//
-//    public void setDate(Date date) {
-//        this.date = date;
-//    }
-//
-//    public Integer getDuration() {
-//        return duration;
-//    }
-//
-//    public void setDuration(Integer duration) {
-//        this.duration = duration;
-//    }
-//
-    public Double getMark() {
-        return mark;
-    }
-
-    public void setMark(Double mark) {
-        this.mark = mark;
-    }
-
-    public Long getNumMarks() {
-        return numMarks;
-    }
-
-    public void setNumMarks(Long numMarks) {
-        this.numMarks = numMarks;
-    }
-//
-//    public User getCreator() {
-//        return creator;
-//    }
-//
-//    public void setCreator(User creator) {
-//        this.creator = creator;
-//    }
-
-//    public Video getVideo() {
-//        return video;
-//    }
-
-//    public void setVideo(Video video) {
-//        this.video = video;
-//    }
-
-    public List<Lesson> getLessons() {
-        return lessons;
-    }
-
-    public void setLessons(List<Lesson> lessons) {
-        this.lessons = lessons;
-    }
-
-    public Set<Comment> getComments() {
-        return comments;
-    }
-
-    public void setComments(Set<Comment> comments) {
-        this.comments = comments;
     }
 
     public void addComment(Comment comment){

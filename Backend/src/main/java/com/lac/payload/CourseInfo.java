@@ -11,6 +11,8 @@ public class CourseInfo {
     private final String title;
     private final String description;
     private final String descriptionLong;
+    private final String language;
+    private final String load;
 
     private final String imageUrl;
     private final String category;

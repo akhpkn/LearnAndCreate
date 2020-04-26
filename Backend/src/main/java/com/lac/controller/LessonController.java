@@ -11,31 +11,28 @@ import com.lac.security.CurrentUser;
 import com.lac.security.UserPrincipal;
 import com.lac.service.CommentService;
 import com.lac.service.VideoService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.annotation.PostConstruct;
 import javax.validation.Valid;
 import java.io.IOException;
 
 @RestController
 @RequestMapping("api/lesson")
+@AllArgsConstructor
 public class LessonController {
-    @Autowired
-    CommentService commentService;
 
-    @Autowired
-    private UserRepository userRepository;
+    private final CommentService commentService;
 
-    @Autowired
-    private VideoService videoService;
+    private final UserRepository userRepository;
 
-    @Autowired
-    private LessonRepository lessonRepository;
+    private final VideoService videoService;
+
+    private final LessonRepository lessonRepository;
 
     @PostMapping("{lessonId}/comment")
     @PreAuthorize("hasRole('USER')")

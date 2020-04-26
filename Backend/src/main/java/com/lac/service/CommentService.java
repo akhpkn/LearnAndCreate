@@ -3,28 +3,24 @@ package com.lac.service;
 import com.lac.model.Comment;
 import com.lac.model.Course;
 import com.lac.model.Lesson;
-import com.lac.model.User;
 import com.lac.repository.CommentRepository;
 import com.lac.repository.CourseRepository;
 import com.lac.repository.LessonRepository;
-import com.lac.security.UserPrincipal;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.AfterDomainEventPublication;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.Calendar;
 import java.util.TimeZone;
 
 @Service
+@AllArgsConstructor
 public class CommentService {
-    @Autowired
-    LessonRepository lessonRepository;
 
-    @Autowired
-    CommentRepository commentRepository;
+    private final LessonRepository lessonRepository;
 
-    @Autowired
-    CourseRepository courseRepository;
+    private final CommentRepository commentRepository;
+
+    private final CourseRepository courseRepository;
 
     public boolean deleteComment(Long userId, Long commentId){
         Comment comment = commentRepository.findCommentByCommentId(commentId);

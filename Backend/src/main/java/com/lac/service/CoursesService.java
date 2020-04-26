@@ -4,9 +4,9 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.lac.model.*;
 import com.lac.repository.CourseRepository;
 import com.lac.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -14,16 +14,14 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class CoursesService {
 
-    @Autowired
-    CourseRepository courseRepository;
+    private final CourseRepository courseRepository;
 
-    @Autowired
-    UserRepository userRepository;
+    private final UserRepository userRepository;
 
-    @Autowired
-    private AmazonS3 awsS3Client;
+    private final AmazonS3 awsS3Client;
 
     @Value("${jsa.s3.bucket}")
     private String bucketName;

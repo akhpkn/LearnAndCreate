@@ -6,9 +6,9 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.lac.model.Image;
 import com.lac.repository.FileRepository;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.imgscalr.Scalr;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -22,13 +22,12 @@ import java.io.OutputStream;
 import java.time.LocalDateTime;
 
 @Service
+@RequiredArgsConstructor
 public class ImageService {
 
-    @Autowired
-    private FileRepository fileRepository;
+    private final FileRepository fileRepository;
 
-    @Autowired
-    private AmazonS3 awsS3Client;
+    private final AmazonS3 awsS3Client;
 
     @Value("${jsa.s3.bucket}")
     private String bucketName;

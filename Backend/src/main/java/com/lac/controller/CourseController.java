@@ -5,7 +5,6 @@ import com.lac.model.*;
 import com.lac.payload.*;
 import com.lac.repository.CommentRepository;
 import com.lac.repository.CourseRepository;
-import com.lac.repository.LessonRepository;
 import com.lac.repository.UserRepository;
 import com.lac.security.CurrentUser;
 import com.lac.security.UserPrincipal;
@@ -13,7 +12,7 @@ import com.lac.service.CommentService;
 import com.lac.service.CourseService;
 import com.lac.service.ImageService;
 import com.lac.service.VideoService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -25,35 +24,24 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 
-import lombok.Builder;
-
 @RestController
 @RequestMapping("api/course/")
+@AllArgsConstructor
 public class CourseController {
 
-    @Autowired
-    CommentService commentService;
+    private final CommentService commentService;
 
-    @Autowired
-    private CourseService courseService;
+    private final CourseService courseService;
 
-    @Autowired
-    private VideoService videoService;
+    private final CommentRepository commentRepository;
 
-    @Autowired
-    private CommentRepository commentRepository;
+    private final UserRepository userRepository;
 
-    @Autowired
-    private UserRepository userRepository;
+    private final ImageService imageService;
 
-    @Autowired
-    private ImageService imageService;
+    private final VideoService videoService;
 
-    @Autowired
-    private CourseRepository courseRepository;
-
-    @Autowired
-    private LessonRepository lessonRepository;
+    private final CourseRepository courseRepository;
 
     @GetMapping("{courseId}")
     @PreAuthorize("hasRole('USER')")
@@ -111,7 +99,7 @@ public class CourseController {
     @PostMapping("/{courseId}")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> subscribeCourse(@CurrentUser UserPrincipal currentUser,
-                                             @PathVariable("courseId") Long courseId) {
+                                                @PathVariable("courseId") Long courseId) {
         boolean flag = courseService.subscribeCourse(currentUser, courseId);
         if (flag)
             return new ResponseEntity<>(new ApiResponse(true, "You subscribed to the course"), HttpStatus.OK);
@@ -121,7 +109,7 @@ public class CourseController {
     @DeleteMapping("/{courseId}")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> unsubscribeCourse(@CurrentUser UserPrincipal currentUser,
-                                               @PathVariable("courseId") Long courseId) {
+                                                  @PathVariable("courseId") Long courseId) {
         boolean flag = courseService.unsubscribeCourse(currentUser, courseId);
         if (flag)
             return new ResponseEntity<>(new ApiResponse(true, "You unsubscribed from the course"), HttpStatus.OK);
@@ -142,26 +130,6 @@ public class CourseController {
             return new ResponseEntity<>(HttpStatus.OK);
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
-
-//    @PostMapping(value = "{courseId}/lessonvideo", consumes = {"multipart/mixed"})
-//    public ResponseEntity<?> addLessonWithVideo(@PathVariable("courseId") Long courseId,
-//                                                @Valid @RequestPart LessonRequest lessonRequest,
-//                                                @RequestParam("file") MultipartFile file) throws IOException {
-//        Lesson lesson = new Lesson();
-//        lesson.setTitle(lessonRequest.getTitle());
-//        lesson.setDescription(lessonRequest.getDescription());
-//        lesson.setDuration(lessonRequest.getDuration());
-//
-//        Video video = videoService.store(file);
-//        lesson.setVideo(video);
-//        lessonRepository.save(lesson);
-//
-//        Course course = courseRepository.findByCourseId(courseId);
-//        course.addLesson(lesson);
-//        courseRepository.save(course);
-//
-//        return new ResponseEntity<>(new UploadFileResponse(video.getUrl(), video.getType(), file.getSize()), HttpStatus.OK);
-//    }
 
     @GetMapping("/{courseId}/lessons")
     public ResponseEntity<List<Lesson>> getCourseLessons(@PathVariable("courseId") Long courseId) {
@@ -225,6 +193,8 @@ public class CourseController {
                 .subsNumber(course.getUsers().size())
                 .title(course.getTitle())
                 .subscribed(subscribed)
+                .load(course.getLoad())
+                .language(course.getLanguage())
                 .build();
         return new ResponseEntity<>(info, HttpStatus.OK);
     }

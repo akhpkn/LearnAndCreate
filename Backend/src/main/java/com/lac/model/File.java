@@ -1,10 +1,17 @@
 package com.lac.model;
 
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import javax.persistence.*;
 
 @Entity
 @Table(name = "files")
 @Inheritance(strategy = InheritanceType.JOINED)
+@Getter
+@Setter
+@NoArgsConstructor
 public class File {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -14,36 +21,8 @@ public class File {
 
     private String type;
 
-    public File() {
-
-    }
-
-    public File(String url, String type) {
+    File(String url, String type) {
         this.url = url;
-        this.type = type;
-    }
-
-    public Long getFileId() {
-        return fileId;
-    }
-
-    public String getUrl() {
-        return url;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public void setFileId(Long fileId) {
-        this.fileId = fileId;
-    }
-
-    public void setUrl(String url) {
-        this.url = url;
-    }
-
-    public void setType(String type) {
         this.type = type;
     }
 }
