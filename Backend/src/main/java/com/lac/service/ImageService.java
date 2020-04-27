@@ -15,10 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 import java.time.LocalDateTime;
 
 @Service
@@ -48,6 +45,20 @@ public class ImageService {
         return fileRepository.save(image);
     }
 
+    public Image storeResourceImage(MultipartFile multipartFile, String type) throws IOException {
+        String extension = multipartFile.getOriginalFilename()
+                .substring(multipartFile.getOriginalFilename().lastIndexOf('.')).toLowerCase();
+
+        if (ImageIO.read(multipartFile.getInputStream()) == null)
+            throw new IOException("Can't read file");
+
+        String fileName = generateFileName(multipartFile.getOriginalFilename());
+
+        String url = uploadResourceImage(fileName + extension, multipartFile, type);
+        Image image = new Image(url, multipartFile.getContentType());
+        return fileRepository.save(image);
+    }
+
     private File convertMultiPartToFile(MultipartFile file) throws IOException {
         File convertedFile = new File(file.getOriginalFilename());
         FileOutputStream fos = new FileOutputStream(convertedFile);
@@ -70,8 +81,22 @@ public class ImageService {
                 multipartFile.getInputStream(), metadata)
                 .withCannedAcl(CannedAccessControlList.PublicRead));
 
-        BufferedImage og = ImageIO.read(multipartFile.getInputStream());
-        BufferedImage scaledImage = Scalr.resize(og, 50);
+//        BufferedImage og = ImageIO.read(multipartFile.getInputStream());
+//        BufferedImage scaledImage = Scalr.resize(og, 50);
+        return fileUrl;
+    }
+
+    private String uploadResourceImage(String fileName, MultipartFile multipartFile, String type) throws IOException {
+        String fileUrl = ENDPOINT_URL + "/resources/" + type + "/" + fileName;
+
+        ObjectMetadata metadata = new ObjectMetadata();
+        metadata.setContentType(multipartFile.getContentType());
+        metadata.setContentLength(multipartFile.getSize());
+
+        awsS3Client.putObject(new PutObjectRequest(bucketName, "resources/" + type + "/" + fileName,
+                multipartFile.getInputStream(), metadata)
+                .withCannedAcl(CannedAccessControlList.PublicRead));
+
         return fileUrl;
     }
 
@@ -79,7 +104,8 @@ public class ImageService {
         String fileUrl = ENDPOINT_URL + "/images/" + fileName;
 
         BufferedImage og = ImageIO.read(multipartFile.getInputStream());
-        BufferedImage scaledImage = Scalr.resize(og, 400, 400);
+//        BufferedImage scaledImage = Scalr.resize(og, 400, 400);
+        BufferedImage scaledImage = Scalr.resize(og, Scalr.Mode.AUTOMATIC, 400);
         String formatName = multipartFile.getOriginalFilename()
                 .substring(multipartFile.getOriginalFilename().lastIndexOf('.') + 1).toLowerCase();
 
