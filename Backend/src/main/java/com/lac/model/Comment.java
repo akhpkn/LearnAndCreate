@@ -1,6 +1,5 @@
 package com.lac.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -31,12 +30,11 @@ public class Comment {
     @Temporal(TemporalType.TIMESTAMP)
     private Calendar date;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JsonIgnore
+    @OneToOne
     @JoinTable(name = "comment_user",
             joinColumns = @JoinColumn(name = "comment_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id"))
-    private User user = new User();
+    private User user;
 
     public Comment(String text){
         Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
