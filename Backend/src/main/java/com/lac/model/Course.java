@@ -1,6 +1,7 @@
 package com.lac.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.lac.payload.CourseInfo;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -136,5 +137,25 @@ public class Course {
 
     public void addLesson(Lesson lesson) {
         lessons.add(lesson);
+    }
+
+    public CourseInfo courseInfo(boolean subscribed) {
+        return CourseInfo.builder()
+                .courseId(courseId)
+                .title(title)
+                .description(description)
+                .category(category.getName())
+                .language(language)
+                .load(load)
+                .imageUrl(image == null ? "url" : image.getUrl())
+                .introVideoUrl(video == null ? "url" : video.getUrl())
+                .subsNumber(users.size())
+                .reviewsNumber(comments.size())
+                .marksNumber(numMarks)
+                .mark(mark)
+                .lessonsNumber(lessons.size())
+                .descriptionLong(descriptionLong)
+                .subscribed(subscribed)
+                .build();
     }
 }

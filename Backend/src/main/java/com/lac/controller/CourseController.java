@@ -181,27 +181,7 @@ public class CourseController {
         if (course == null)
             return new ResponseEntity<>(new ApiResponse(false, "course doesn't exist"), HttpStatus.BAD_REQUEST);
 
-        Video video = course.getVideo();
-        String videoUrl = video != null ? video.getUrl() :
-                "https://lacbucket.s3.eu-west-2.amazonaws.com/videos/809133781f0f1dcdd4191285f1d19017.mp4";
-
-        CourseInfo info = CourseInfo.builder()
-                .courseId(course.getCourseId())
-                .category(course.getCategory().getName())
-                .description(course.getDescription())
-                .descriptionLong(course.getDescriptionLong())
-                .imageUrl(course.getImage().getUrl())
-                .lessonsNumber(course.getLessons().size())
-                .mark(course.getMark())
-                .marksNumber(course.getNumMarks())
-                .reviewsNumber(course.getComments().size())
-                .subsNumber(course.getUsers().size())
-                .title(course.getTitle())
-                .subscribed(subscribed)
-                .load(course.getLoad())
-                .language(course.getLanguage())
-                .introVideoUrl(videoUrl)
-                .build();
+        CourseInfo info = course.courseInfo(subscribed);
         return new ResponseEntity<>(info, HttpStatus.OK);
     }
 }
