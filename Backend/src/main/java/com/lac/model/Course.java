@@ -104,7 +104,7 @@ public class Course {
             inverseJoinColumns = @JoinColumn(name = "lesson_id"))
     private List<Lesson> lessons = new ArrayList<>();
 
-    @OneToMany(fetch = FetchType.LAZY)
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JsonIgnore
     @JoinTable(name = "course_comments",
             joinColumns = @JoinColumn(name = "course_id"),

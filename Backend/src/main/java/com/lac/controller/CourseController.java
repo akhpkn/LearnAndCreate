@@ -69,17 +69,30 @@ public class CourseController {
         return new ResponseEntity<>(comments, HttpStatus.OK);
     }
 
-    @PostMapping("{courseId}/comment")
+//    @PostMapping("{courseId}/comment")
+//    @PreAuthorize("hasRole('USER')")
+//    public ResponseEntity<?> addCommentToCourse(@CurrentUser UserPrincipal currentUser,
+//                                                @Valid @RequestBody CommentRequest request,
+//                                                @PathVariable("courseId") Long courseId) {
+//        Comment comment = new Comment(request.getText());
+//        comment.setUser(userRepository.findByUserId(currentUser.getUserId()));
+//        boolean flag = commentService.addCommentToCourse(courseId, comment);
+//        if (!flag)
+//            return new ResponseEntity<>(HttpStatus.CONFLICT);
+//        return new ResponseEntity<>(HttpStatus.CREATED);
+//    }
+
+    @PostMapping("{courseId}/feedback")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<?> addCommentToCourse(@CurrentUser UserPrincipal currentUser,
-                                                @Valid @RequestBody CommentRequest request,
-                                                @PathVariable("courseId") Long courseId) {
-        Comment comment = new Comment(request.getText());
-        comment.setUser(userRepository.findByUserId(currentUser.getUserId()));
-        boolean flag = commentService.addCommentToCourse(courseId, comment);
-        if (!flag)
-            return new ResponseEntity<>(HttpStatus.CONFLICT);
-        return new ResponseEntity<>(HttpStatus.CREATED);
+    public ResponseEntity<?> addFeedback(@CurrentUser UserPrincipal currentUser,
+                                         @Valid @RequestBody FeedbackRequest request,
+                                         @PathVariable("courseId") Long courseId) {
+        boolean flag = courseService.addFeedback(currentUser, request, courseId);
+        if (flag)
+            return new ResponseEntity<>(new ApiResponse(true,"Feedback was saved"), HttpStatus.OK);
+        return new ResponseEntity<>(
+                new ApiResponse(false, "Nonexistent course or user!"),
+                HttpStatus.BAD_REQUEST);
     }
 
     @PostMapping("/{courseId}/image")

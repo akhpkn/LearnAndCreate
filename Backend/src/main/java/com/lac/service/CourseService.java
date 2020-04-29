@@ -4,6 +4,7 @@ import com.lac.model.Comment;
 import com.lac.model.Course;
 import com.lac.model.Lesson;
 import com.lac.model.User;
+import com.lac.payload.FeedbackRequest;
 import com.lac.repository.CommentRepository;
 import com.lac.repository.CourseRepository;
 import com.lac.repository.LessonRepository;
@@ -28,7 +29,7 @@ public class CourseService {
 
     private final UserRepository userRepository;
 
-    public boolean addMark(Long mark, Long courseId){
+    public boolean addMark(Integer mark, Long courseId){
         Course course = courseRepository.findByCourseId(courseId);
         if(course!=null){
             Double lastMark = course.getMark()==null?0 : course.getMark();
@@ -39,6 +40,30 @@ public class CourseService {
             course.setNumMarks(num);
             courseRepository.save(course);
             return true;
+        }
+        return false;
+    }
+
+    public boolean addFeedback(UserPrincipal currentUser, FeedbackRequest request, Long courseId) {
+        if (currentUser != null) {
+            Course course = courseRepository.findByCourseId(courseId);
+            if (course != null) {
+                double lastMark = course.getMark();
+                long num = course.getNumMarks() + 1;
+                double newMark = (lastMark * (num - 1) + request.getMark()) / num;
+
+                course.setMark(newMark);
+                course.setNumMarks(num);
+
+                if (!request.getText().equals("")) {
+                    Comment comment = new Comment(request.getText(), request.getMark());
+                    comment.setUser(userRepository.findByUserId(currentUser.getUserId()));
+                    course.addComment(comment);
+                }
+                courseRepository.save(course);
+                return true;
+            }
+            return false;
         }
         return false;
     }

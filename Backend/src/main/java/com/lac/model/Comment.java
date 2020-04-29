@@ -5,6 +5,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 import java.util.Calendar;
@@ -25,6 +27,10 @@ public class Comment {
     @Size(max = 10000)
     private String text;
 
+    @Min(1)
+    @Max(5)
+    private Integer mark;
+
     @Basic
     @Column(name = "date_creation")
     @Temporal(TemporalType.TIMESTAMP)
@@ -36,9 +42,10 @@ public class Comment {
             inverseJoinColumns = @JoinColumn(name = "user_id"))
     private User user;
 
-    public Comment(String text){
+    public Comment(String text, Integer mark){
         Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
         date = calendar;
         this.text = text;
+        this.mark = mark;
     }
 }

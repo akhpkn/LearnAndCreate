@@ -6,5 +6,5 @@ import lombok.Setter;
 @Getter
 @Setter
 public class MarkRequest {
-    private Long mark;
+    private Integer mark;
 }

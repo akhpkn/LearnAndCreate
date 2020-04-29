@@ -34,19 +34,19 @@ public class LessonController {
 
     private final LessonRepository lessonRepository;
 
-    @PostMapping("{lessonId}/comment")
-    @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<Comment> addCommentToLesson(@CurrentUser UserPrincipal currentUser,
-                                                      @Valid @RequestBody CommentRequest request,
-                                                      @PathVariable("lessonId") Long lessonId) {
-        Comment comment = new Comment(request.getText());
-//        comment.setDate(new Date());
-        comment.setUser(userRepository.findByUserId(currentUser.getUserId()));
-        boolean flag = commentService.addCommentToLesson(lessonId, comment);
-        if (!flag)
-            return new ResponseEntity<>(HttpStatus.CONFLICT);
-        return new ResponseEntity<>(comment, HttpStatus.CREATED);
-    }
+//    @PostMapping("{lessonId}/comment")
+//    @PreAuthorize("hasRole('USER')")
+//    public ResponseEntity<Comment> addCommentToLesson(@CurrentUser UserPrincipal currentUser,
+//                                                      @Valid @RequestBody CommentRequest request,
+//                                                      @PathVariable("lessonId") Long lessonId) {
+//        Comment comment = new Comment(request.getText());
+////        comment.setDate(new Date());
+//        comment.setUser(userRepository.findByUserId(currentUser.getUserId()));
+//        boolean flag = commentService.addCommentToLesson(lessonId, comment);
+//        if (!flag)
+//            return new ResponseEntity<>(HttpStatus.CONFLICT);
+//        return new ResponseEntity<>(comment, HttpStatus.CREATED);
+//    }
 
     @PostMapping("{lessonId}/video")
     public UploadFileResponse addVideoToLesson(@PathVariable("lessonId") Long lessonId,
