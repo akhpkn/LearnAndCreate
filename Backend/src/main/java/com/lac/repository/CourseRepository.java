@@ -3,7 +3,6 @@ package com.lac.repository;
 import com.lac.model.Category;
 import com.lac.model.Comment;
 import com.lac.model.Course;
-import org.springframework.cache.interceptor.CacheableOperation;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

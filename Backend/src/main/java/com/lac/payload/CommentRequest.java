@@ -1,8 +1,11 @@
 package com.lac.payload;
 
+import com.lac.model.Comment;
 import lombok.Getter;
 import lombok.Setter;
 
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 
@@ -10,6 +13,6 @@ import javax.validation.constraints.Size;
 @Setter
 public class CommentRequest {
     @NotBlank
-    @Size(max = 10000)
+    @Size(max = 1000)
     private String text;
 }

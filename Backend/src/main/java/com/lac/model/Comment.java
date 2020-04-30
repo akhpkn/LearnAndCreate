@@ -10,6 +10,7 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.TimeZone;
 
 @Table(name = "comments")
@@ -24,17 +25,15 @@ public class Comment {
     private Long commentId;
 
     @NotBlank
-    @Size(max = 10000)
+    @Size(max = 1000)
     private String text;
 
     @Min(1)
     @Max(5)
     private Integer mark;
 
-    @Basic
-    @Column(name = "date_creation")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Calendar date;
+    @Column(name = "date_of_creation")
+    private String date;
 
     @OneToOne
     @JoinTable(name = "comment_user",
@@ -43,8 +42,13 @@ public class Comment {
     private User user;
 
     public Comment(String text, Integer mark){
-        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-        date = calendar;
+        String months[] = {"января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября",
+                "октября", "ноября", "декабря"};
+        GregorianCalendar calendar = new GregorianCalendar();
+        Integer day = calendar.get(Calendar.DAY_OF_MONTH);
+        Integer month = calendar.get(Calendar.MONTH);
+        Integer year = calendar.get(Calendar.YEAR);
+        date = String.format(day + " " + months[month] + " " + year);
         this.text = text;
         this.mark = mark;
     }

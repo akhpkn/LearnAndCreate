@@ -3,13 +3,19 @@ package com.lac.service;
 import com.lac.model.Comment;
 import com.lac.model.Course;
 import com.lac.model.Lesson;
+import com.lac.model.User;
 import com.lac.repository.CommentRepository;
 import com.lac.repository.CourseRepository;
 import com.lac.repository.LessonRepository;
+import com.lac.security.UserPrincipal;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.AfterDomainEventPublication;
 import org.springframework.stereotype.Service;
 
 import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.TimeZone;
 
 @Service
@@ -38,7 +44,7 @@ public class CommentService {
         if(comment!=null){
             if(comment.getUser().getUserId() == userId) {
                 comment.setText(text);
-                comment.setDate(Calendar.getInstance(TimeZone.getTimeZone("UTC")));
+                comment.setDate(getDate());
                 commentRepository.save(comment);
                 return true;
             }
@@ -50,7 +56,7 @@ public class CommentService {
         Course course = courseRepository.findByCourseId(courseId);
         if( course !=null){
             course.addComment(comment);
-            comment.setDate(Calendar.getInstance(TimeZone.getTimeZone("UTC")));
+            comment.setDate(getDate());
             commentRepository.save(comment);
             return true;
         }
@@ -61,10 +67,20 @@ public class CommentService {
         Lesson lesson = lessonRepository.findByLessonId(lessonId);
         if( lesson !=null){
             lesson.addComment(comment);
-            comment.setDate(Calendar.getInstance(TimeZone.getTimeZone("UTC")));
+            comment.setDate(getDate());
             commentRepository.save(comment);
             return true;
         }
         return false;
+    }
+
+    public String getDate(){
+        String months[] = {"января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября",
+                "октября", "ноября", "декабря"};
+        GregorianCalendar calendar = new GregorianCalendar();
+        Integer day = calendar.get(Calendar.DAY_OF_MONTH);
+        Integer month = calendar.get(Calendar.MONTH);
+        Integer year = calendar.get(Calendar.YEAR);
+        return String.format(day + " " + months[month] + " " + year);
     }
 }

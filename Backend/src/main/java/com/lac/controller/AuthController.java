@@ -12,6 +12,7 @@ import com.lac.repository.UserRepository;
 import com.lac.security.JwtTokenProvider;
 import com.lac.service.EmailService;
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

@@ -4,6 +4,7 @@ import com.lac.security.CustomUserDetailsService;
 import com.lac.security.JwtAuthenticationEntryPoint;
 import com.lac.security.JwtAuthenticationFilter;
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;

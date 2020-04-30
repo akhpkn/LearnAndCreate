@@ -1,24 +1,18 @@
 package com.lac.controller;
 
-import com.lac.model.Comment;
 import com.lac.model.Lesson;
 import com.lac.model.Video;
-import com.lac.payload.CommentRequest;
 import com.lac.payload.UploadFileResponse;
 import com.lac.repository.LessonRepository;
 import com.lac.repository.UserRepository;
-import com.lac.security.CurrentUser;
-import com.lac.security.UserPrincipal;
 import com.lac.service.CommentService;
 import com.lac.service.VideoService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.validation.Valid;
 import java.io.IOException;
 
 @RestController

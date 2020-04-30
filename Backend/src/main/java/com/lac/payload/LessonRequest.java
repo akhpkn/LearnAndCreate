@@ -6,6 +6,7 @@ import lombok.Setter;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
+import javax.websocket.server.ServerEndpoint;
 
 @AllArgsConstructor
 @Getter

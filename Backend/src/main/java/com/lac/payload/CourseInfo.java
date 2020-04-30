@@ -2,7 +2,6 @@ package com.lac.payload;
 
 import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
 
 @Builder
 @Getter
