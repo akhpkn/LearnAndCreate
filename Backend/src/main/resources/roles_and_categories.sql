@@ -10,14 +10,13 @@ insert into roles (name) values ('ROLE_ADMIN');
 
 create table categories (
     `category_id` bigint(20) not null auto_increment,
-    `name` varchar(60) not null,
+    'name' varchar(60) not null,
     primary key (`category_id`),
     unique key `uk_categories_name` (`name`)
 ) engine = InnoDB default charset = utf8;
 
-insert into categories (name) values ('Музыка');
-insert into categories (name) values ('Искусствознание');
-insert into categories (name) values ('Литература');
-insert into categories (name) values ('Архитектура');
-insert into categories (name) values ('Изобразительное искусство');
-insert into categories (name) values ('Дизайн');
+insert into categories (name) values ('Music');
+insert into categories (name) values ('Literature');
+insert into categories (name) values ('Architecture');
+insert into categories (name) values ('Art');
+insert into categories (name) values ('Design');
