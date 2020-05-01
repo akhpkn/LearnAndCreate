@@ -16,6 +16,7 @@ public class CourseInfo {
 
     private final String imageUrl;
     private final String introVideoUrl;
+    private final long introVideoId;
     private final String category;
     private final double mark;
 

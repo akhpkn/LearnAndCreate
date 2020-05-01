@@ -149,6 +149,7 @@ public class Course {
                 .load(load)
                 .imageUrl(image == null ? "url" : image.getUrl())
                 .introVideoUrl(video == null ? "url" : video.getUrl())
+                .introVideoId(video == null ? 1 : video.getFileId())
                 .subsNumber(users.size())
                 .reviewsNumber(comments.size())
                 .marksNumber(numMarks)
