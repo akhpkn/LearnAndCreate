@@ -94,7 +94,7 @@ public class CourseService {
         return false;
     }
 
-    public Set<Comment> getAllCommentsByCourseId(Long courseId) {
+    public List<Comment> getAllCommentsByCourseId(Long courseId) {
         Course course = courseRepository.findByCourseId(courseId);
         return course.getComments();
     }

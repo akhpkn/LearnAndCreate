@@ -8,7 +8,9 @@ import lombok.Setter;
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Table(name = "lessons")
@@ -44,7 +46,7 @@ public class Lesson {
     @JoinTable(name = "lesson_comments",
             joinColumns = @JoinColumn(name = "lesson_id"),
             inverseJoinColumns = @JoinColumn(name = "comment_id"))
-    private Set<Comment> comments = new HashSet<>();
+    private List<Comment> comments = new ArrayList<>();
 
     public Lesson(Long lessonId, String title, String description){
         this.lessonId = lessonId;

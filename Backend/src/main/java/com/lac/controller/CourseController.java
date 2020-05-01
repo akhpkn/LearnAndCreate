@@ -67,8 +67,8 @@ public class CourseController {
 
     @GetMapping("{courseId}/comment")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<Set<Comment>> getAllCourseComments(@PathVariable("courseId") Long courseId) {
-        Set<Comment> comments = courseService.getAllCommentsByCourseId(courseId);
+    public ResponseEntity<List<Comment>> getAllCourseComments(@PathVariable("courseId") Long courseId) {
+        List<Comment> comments = courseService.getAllCommentsByCourseId(courseId);
         return new ResponseEntity<>(comments, HttpStatus.OK);
     }
 

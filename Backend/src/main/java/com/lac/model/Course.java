@@ -109,7 +109,7 @@ public class Course {
     @JoinTable(name = "course_comments",
             joinColumns = @JoinColumn(name = "course_id"),
             inverseJoinColumns = @JoinColumn(name = "comment_id"))
-    private Set<Comment> comments = new HashSet<>();
+    private List<Comment> comments = new ArrayList<>();
 
 //    @ManyToMany( fetch =  FetchType.LAZY)
 //    @JsonIgnore

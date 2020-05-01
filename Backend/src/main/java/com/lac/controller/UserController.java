@@ -46,7 +46,7 @@ public class UserController {
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<User> getCurrentUser(@CurrentUser UserPrincipal currentUser) {
         User user = userRepository.findByUserId(currentUser.getUserId());
-        return new ResponseEntity<User>(user, HttpStatus.OK);
+        return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
     @GetMapping("/user/checkUsernameAvailability")

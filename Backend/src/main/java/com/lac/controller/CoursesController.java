@@ -79,7 +79,7 @@ public class CoursesController {
     public ResponseEntity<?> getCoursesByUserId(@PathVariable("userId") Long userId) {
         User user = userRepository.findByUserId(userId);
         if (user != null) {
-            Set<Course> courses = user.getCourses();
+            List<Course> courses = user.getCourses();
             return new ResponseEntity<>(courses, HttpStatus.OK);
         }
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -89,7 +89,7 @@ public class CoursesController {
     public ResponseEntity<?> getMyCourses(@CurrentUser UserPrincipal currentUser) {
         User user = userRepository.findByUserId(currentUser.getUserId());
         if (user != null) {
-            Set<Course> courses = user.getCourses();
+            List<Course> courses = user.getCourses();
             return new ResponseEntity<>(courses, HttpStatus.OK);
         }
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
