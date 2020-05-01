@@ -1,5 +1,6 @@
 package com.lac.model;
 
+import com.lac.payload.CommentInfo;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -51,5 +52,18 @@ public class Comment {
         date = String.format(day + " " + months[month] + " " + year);
         this.text = text;
         this.mark = mark;
+    }
+
+    public CommentInfo commentInfo() {
+        return CommentInfo.builder()
+                .commentId(commentId)
+                .date(date)
+                .mark(mark)
+                .text(text)
+                .userId(user.getUserId())
+                .userImageUrl(user.getImage() == null ? "url" : user.getImage().getUrl())
+                .userName(user.getName())
+                .userUsername(user.getUsername())
+                .build();
     }
 }

@@ -4,6 +4,7 @@ import com.lac.model.Comment;
 import com.lac.model.Course;
 import com.lac.model.Lesson;
 import com.lac.model.User;
+import com.lac.payload.CommentInfo;
 import com.lac.payload.FeedbackRequest;
 import com.lac.repository.CommentRepository;
 import com.lac.repository.CourseRepository;
@@ -97,6 +98,14 @@ public class CourseService {
     public List<Comment> getAllCommentsByCourseId(Long courseId) {
         Course course = courseRepository.findByCourseId(courseId);
         return course.getComments();
+    }
+
+    public List<CommentInfo> getAllReviewsByCourseId(Long courseId) {
+        Course course = courseRepository.findByCourseId(courseId);
+        List<CommentInfo> reviews = new ArrayList<>();
+        for (Comment review : course.getComments())
+            reviews.add(review.commentInfo());
+        return reviews;
     }
 
     public void addNewCommentToCourse(Comment comment){
