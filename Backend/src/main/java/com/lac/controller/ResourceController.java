@@ -32,8 +32,8 @@ public class ResourceController {
     }
 
     @GetMapping("/image/{type}")
-    public ResponseEntity<?> getRateImage(@PathVariable("type") String type) {
-        List<File> files = fileRepository.findAllByUrlContains("/resources/" + type);
+    public ResponseEntity<?> getImage(@PathVariable("type") String type) {
+        List<File> files = fileRepository.findAllByUrlContains("/resources/" + type + "/");
 //        if (files.size() == 1) {
 //            Image image = (Image)files.get(0);
 //            return new ResponseEntity<>(image, HttpStatus.OK);
