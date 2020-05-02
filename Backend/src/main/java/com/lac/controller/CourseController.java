@@ -24,6 +24,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import java.io.IOException;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
@@ -69,6 +71,8 @@ public class CourseController {
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<List<Comment>> getAllCourseComments(@PathVariable("courseId") Long courseId) {
         List<Comment> comments = courseService.getAllCommentsByCourseId(courseId);
+        Collections.sort(comments, Comparator.comparingLong(Comment::getCommentId));
+        Collections.reverse(comments);
         return new ResponseEntity<>(comments, HttpStatus.OK);
     }
 

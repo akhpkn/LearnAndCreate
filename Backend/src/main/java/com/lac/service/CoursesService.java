@@ -36,7 +36,7 @@ public class CoursesService {
     }
 
     public List<Course> getCoursesByUser(User user) {
-        return (List<Course>) user.getCourses();
+        return user.getCourses();
     }
 
     public List<Course> getCoursesByCategory(Category category) {
