@@ -2,10 +2,14 @@ package com.lac.controller;
 
 import com.lac.model.Lesson;
 import com.lac.model.Video;
+import com.lac.payload.ApiResponse;
 import com.lac.payload.UploadFileResponse;
 import com.lac.repository.LessonRepository;
 import com.lac.repository.UserRepository;
+import com.lac.security.CurrentUser;
+import com.lac.security.UserPrincipal;
 import com.lac.service.CommentService;
+import com.lac.service.LessonService;
 import com.lac.service.VideoService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -25,6 +29,8 @@ public class LessonController {
     private final UserRepository userRepository;
 
     private final VideoService videoService;
+
+    private final LessonService lessonService;
 
     private final LessonRepository lessonRepository;
 
@@ -66,5 +72,14 @@ public class LessonController {
         lessonRepository.save(lesson);
 
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PostMapping("{lessonId}/view")
+    public ResponseEntity<?> setViewed(@PathVariable("lessonId") Long lessonId,
+                                       @CurrentUser UserPrincipal currentUser) {
+        boolean flag = lessonService.viewLesson(currentUser, lessonId);
+        if (flag)
+            return new ResponseEntity<>(new ApiResponse(true, "User views lesson"), HttpStatus.OK);
+        return new ResponseEntity<>(new ApiResponse(false, "User has already viewed lesson"), HttpStatus.BAD_REQUEST);
     }
 }

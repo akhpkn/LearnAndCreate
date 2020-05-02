@@ -72,6 +72,12 @@ public class User {
             inverseJoinColumns = @JoinColumn(name = "confirmation_id"))
     private EmailConfirmation emailConfirmation;
 
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinTable(name = "user_progress",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "progress_id"))
+    private Progress progress;
+
     public User(String name, String username, String email, String password) {
         this.name = name;
         this.username = username;

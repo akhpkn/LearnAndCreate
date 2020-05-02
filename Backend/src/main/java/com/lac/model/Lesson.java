@@ -1,6 +1,7 @@
 package com.lac.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.lac.payload.LessonInfo;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -60,5 +61,17 @@ public class Lesson {
 
     public void deleteComment(Comment comment){
         comments.remove(comment);
+    }
+
+    public LessonInfo lessonInfo(boolean viewed) {
+        return LessonInfo.builder()
+                .description(description)
+                .duration(duration)
+                .lessonId(lessonId)
+                .title(title)
+                .videoId(video == null ? 1 : video.getFileId())
+                .videoUrl(video == null ? "url" : video.getUrl())
+                .viewed(viewed)
+                .build();
     }
 }

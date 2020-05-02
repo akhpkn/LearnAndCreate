@@ -71,14 +71,14 @@ public class CourseController {
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<List<Comment>> getAllCourseComments(@PathVariable("courseId") Long courseId) {
         List<Comment> comments = courseService.getAllCommentsByCourseId(courseId);
-        Collections.sort(comments, Comparator.comparingLong(Comment::getCommentId));
-        Collections.reverse(comments);
+        comments.sort(Comparator.comparingLong(Comment::getCommentId).reversed());
         return new ResponseEntity<>(comments, HttpStatus.OK);
     }
 
     @GetMapping("{courseId}/reviews")
     public ResponseEntity<List<CommentInfo>> getAllCourseReviews(@PathVariable("courseId") Long courseId) {
         List<CommentInfo> reviews = courseService.getAllReviewsByCourseId(courseId);
+        reviews.sort(Comparator.comparingLong(CommentInfo::getCommentId).reversed());
         return new ResponseEntity<>(reviews, HttpStatus.OK);
     }
 
@@ -157,9 +157,18 @@ public class CourseController {
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
-    @GetMapping("/{courseId}/lessons")
+    @GetMapping("/{courseId}/lessonsdeprecated")
     public ResponseEntity<List<Lesson>> getCourseLessons(@PathVariable("courseId") Long courseId) {
         List<Lesson> lessons = courseService.getLessonsByCourseId(courseId);
+        lessons.sort(Comparator.comparingLong(Lesson::getLessonId));
+        return new ResponseEntity<>(lessons, HttpStatus.OK);
+    }
+
+    @GetMapping("/{courseId}/lessons")
+    public ResponseEntity<List<LessonInfo>> getLessons(@PathVariable("courseId") Long courseId,
+                                                       @CurrentUser UserPrincipal currentUser) {
+        List<LessonInfo> lessons = courseService.getAllLessons(courseId, currentUser);
+        lessons.sort(Comparator.comparingLong(LessonInfo::getLessonId));
         return new ResponseEntity<>(lessons, HttpStatus.OK);
     }
 

@@ -1,15 +1,10 @@
 package com.lac.service;
 
-import com.lac.model.Comment;
-import com.lac.model.Course;
-import com.lac.model.Lesson;
-import com.lac.model.User;
+import com.lac.model.*;
 import com.lac.payload.CommentInfo;
 import com.lac.payload.FeedbackRequest;
-import com.lac.repository.CommentRepository;
-import com.lac.repository.CourseRepository;
-import com.lac.repository.LessonRepository;
-import com.lac.repository.UserRepository;
+import com.lac.payload.LessonInfo;
+import com.lac.repository.*;
 import com.lac.security.UserPrincipal;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -127,6 +122,21 @@ public class CourseService {
         if (course != null)
             return course.getLessons();
         return new ArrayList<>();
+    }
+
+    public List<LessonInfo> getAllLessons(Long courseId, UserPrincipal currentUser) {
+        Course course = courseRepository.findByCourseId(courseId);
+        User user = userRepository.findByUserId(currentUser.getUserId());
+        Progress userProgress = user.getProgress();
+
+        List<LessonInfo> infos = new ArrayList<>();
+        for (Lesson lesson : course.getLessons()) {
+
+            if (userProgress == null || !userProgress.getLessons().contains(lesson))
+                infos.add(lesson.lessonInfo(false));
+            else infos.add(lesson.lessonInfo(true));
+        }
+        return infos;
     }
 
     public Lesson getNextLesson(Long courseId, Long lessonId) {
