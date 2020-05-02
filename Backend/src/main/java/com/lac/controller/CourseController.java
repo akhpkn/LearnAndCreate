@@ -13,9 +13,6 @@ import com.lac.service.CourseService;
 import com.lac.service.ImageService;
 import com.lac.service.VideoService;
 import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -24,10 +21,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import java.io.IOException;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Set;
 
 @RestController
 @RequestMapping("api/course/")
@@ -158,6 +153,7 @@ public class CourseController {
     }
 
     @GetMapping("/{courseId}/lessonsdeprecated")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<List<Lesson>> getCourseLessons(@PathVariable("courseId") Long courseId) {
         List<Lesson> lessons = courseService.getLessonsByCourseId(courseId);
         lessons.sort(Comparator.comparingLong(Lesson::getLessonId));
@@ -165,6 +161,7 @@ public class CourseController {
     }
 
     @GetMapping("/{courseId}/lessons")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<List<LessonInfo>> getLessons(@PathVariable("courseId") Long courseId,
                                                        @CurrentUser UserPrincipal currentUser) {
         List<LessonInfo> lessons = courseService.getAllLessons(courseId, currentUser);

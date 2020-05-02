@@ -14,6 +14,7 @@ import com.lac.service.VideoService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -75,6 +76,7 @@ public class LessonController {
     }
 
     @PostMapping("{lessonId}/view")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> setViewed(@PathVariable("lessonId") Long lessonId,
                                        @CurrentUser UserPrincipal currentUser) {
         boolean flag = lessonService.viewLesson(currentUser, lessonId);
