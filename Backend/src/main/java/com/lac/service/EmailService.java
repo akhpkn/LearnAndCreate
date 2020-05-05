@@ -6,7 +6,6 @@ import com.lac.repository.EmailConfirmationRepository;
 import com.lac.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -49,9 +48,12 @@ public class EmailService {
         return true;
     }
 
-    public String sendCodeToConfirmEmail(String oldEmail, String newEmail) {
+    public boolean sendCodeToConfirmEmail(String oldEmail, String newEmail) {
         SimpleMailMessage message = new SimpleMailMessage();
         String code = generateString();
+
+        if (userRepository.existsByEmail(newEmail))
+            return false;
 
         EmailConfirmation confirmation = new EmailConfirmation(code, newEmail);
         User user = userRepository.findByEmail(oldEmail);
@@ -64,7 +66,7 @@ public class EmailService {
 
         javaMailSender.send(message);
 
-        return code;
+        return true;
     }
 
     private String generateString() {

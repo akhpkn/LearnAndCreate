@@ -14,7 +14,6 @@ import com.lac.service.EmailService;
 import com.lac.service.ImageService;
 import com.lac.service.UserService;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -98,9 +97,11 @@ public class UserController {
                                        @RequestParam("email") String email) {
         User user = userRepository.findByUserId(currentUser.getUserId());
 
-        String code = emailService.sendCodeToConfirmEmail(user.getEmail(), email.toLowerCase());
+        boolean flag = emailService.sendCodeToConfirmEmail(user.getEmail(), email.toLowerCase());
 
-        return new ResponseEntity<>(new ApiResponse(true, "Confirmation code was sent to your email"), HttpStatus.OK);
+        if (flag)
+            return new ResponseEntity<>(new ApiResponse(true, "Confirmation code was sent to your email"), HttpStatus.OK);
+        return new ResponseEntity<>(new ApiResponse(false, "This email is already in use"), HttpStatus.BAD_REQUEST);
     }
 
     @PutMapping("/user/me/edit/email/confirm")
