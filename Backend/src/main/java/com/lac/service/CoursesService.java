@@ -2,16 +2,22 @@ package com.lac.service;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.lac.model.*;
+import com.lac.payload.CourseInfo;
+import com.lac.repository.CategoryRepository;
 import com.lac.repository.CourseRepository;
 import com.lac.repository.UserRepository;
+import com.lac.security.UserPrincipal;
 import lombok.RequiredArgsConstructor;
+import org.apache.catalina.startup.Catalina;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -22,6 +28,8 @@ public class CoursesService {
 
     private final UserRepository userRepository;
 
+    private final CategoryRepository categoryRepository;
+
     private final AmazonS3 awsS3Client;
 
     @Value("${jsa.s3.bucket}")
@@ -31,23 +39,67 @@ public class CoursesService {
 
     private static final Logger logger = LoggerFactory.getLogger(CoursesService.class);
 
+    public List<CourseInfo> getAllCourses(UserPrincipal currentUser) {
+        List<Course> courseList = courseRepository.findAll();
+        return getCourseInfos(currentUser, courseList);
+    }
+
     public List<Course> getAllCourses() {
         return courseRepository.findAll();
     }
 
-    public List<Course> getCoursesByUser(User user) {
-        return user.getCourses();
+    public List<CourseInfo> getCoursesByUser(UserPrincipal currentUser) {
+        User user = userRepository.findByUserId(currentUser.getUserId());
+        List<Course> courseList = user.getCourses();
+        List<CourseInfo> courses = new ArrayList<>();
+        for (Course course : courseList)
+            courses.add(course.courseInfo(true));
+        return courses;
     }
 
-    public List<Course> getCoursesByCategory(Category category) {
+    public List<CourseInfo> getCoursesByCategory(Long categoryId, UserPrincipal currentUser) {
+        Category category = categoryRepository.findByCategoryId(categoryId);
+        List<Course> courseList = courseRepository.findAllByCategory(category);
+        return getCourseInfos(currentUser, courseList);
+    }
+
+    public List<Course> getCoursesByCategory(Long categoryId) {
+        Category category = categoryRepository.findByCategoryId(categoryId);
         return courseRepository.findAllByCategory(category);
+    }
+
+    public List<CourseInfo> getCoursesByTitleSubstring(String substring, UserPrincipal currentUser) {
+        List<Course> courseList = courseRepository.findAllByTitleContaining(substring);
+        return getCourseInfos(currentUser, courseList);
     }
 
     public List<Course> getCoursesByTitleSubstring(String substring) {
         return courseRepository.findAllByTitleContaining(substring);
     }
 
-    public List<Course> getTopCourses(Pageable pageable) {
+    public List<CourseInfo> getTopCourses(UserPrincipal currentUser) {
+        List<CourseInfo> courses = new ArrayList<>();
+        List<Course> courseList = courseRepository.findTopPopularCourses();
+        int counter = 0;
+        for (Course course : courseList) {
+            boolean subscribed = false;
+            if (currentUser != null) {
+                User user = userRepository.findByUserId(currentUser.getUserId());
+                subscribed = user.getCourses().contains(course);
+            }
+            if (!subscribed) {
+                CourseInfo info = course.courseInfo(false);
+                courses.add(info);
+                counter++;
+                if (counter == 5)
+                    break;
+            }
+        }
+        return courses;
+    }
+
+    public List<Course> getTopCourses() {
+        Pageable pageable = PageRequest.of(0, 5);
         return courseRepository.findTopPopularCourses(pageable);
     }
 
@@ -78,5 +130,19 @@ public class CoursesService {
             String key = file.getUrl().substring(ENDPOINT_URL.length() + 1);
             awsS3Client.deleteObject(bucketName, key);
         }
+    }
+
+    private List<CourseInfo> getCourseInfos(UserPrincipal currentUser, List<Course> courseList) {
+        List<CourseInfo> courses = new ArrayList<>();
+        for (Course course : courseList) {
+            boolean subscribed = false;
+            if (currentUser != null) {
+                User user = userRepository.findByUserId(currentUser.getUserId());
+                subscribed = user.getCourses().contains(course);
+            }
+            CourseInfo info = course.courseInfo(subscribed);
+            courses.add(info);
+        }
+        return courses;
     }
 }

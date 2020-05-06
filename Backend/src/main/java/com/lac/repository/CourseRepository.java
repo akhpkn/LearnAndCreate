@@ -21,4 +21,7 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
 
     @Query("select c from Course c order by size(c.users) desc ")
     List<Course> findTopPopularCourses(Pageable pageable);
+
+    @Query("select c from Course c order by size(c.users) desc ")
+    List<Course> findTopPopularCourses();
 }

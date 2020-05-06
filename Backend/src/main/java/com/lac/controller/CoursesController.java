@@ -4,6 +4,7 @@ import com.lac.model.Category;
 import com.lac.model.Course;
 import com.lac.model.User;
 import com.lac.payload.ApiResponse;
+import com.lac.payload.CourseInfo;
 import com.lac.payload.CourseRequest;
 import com.lac.repository.CategoryRepository;
 import com.lac.repository.CourseRepository;
@@ -16,18 +17,16 @@ import com.lac.service.VideoService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 @RestController
 @RequestMapping("/api/courses")
@@ -54,6 +53,11 @@ public class CoursesController {
         return new ResponseEntity<>(courses, HttpStatus.OK);
     }
 
+    @GetMapping("/info")
+    public ResponseEntity<List<CourseInfo>> getAllCourses(@CurrentUser UserPrincipal currentUser) {
+        List<CourseInfo> courses = coursesService.getAllCourses(currentUser);
+        return new ResponseEntity<>(courses, HttpStatus.OK);
+    }
 
 //    @PostMapping("/{courseId}/videos")
 //    public List<UploadFileResponse> setCourseVideos(@RequestParam(name = "files") MultipartFile[] files,
@@ -86,10 +90,21 @@ public class CoursesController {
     }
 
     @GetMapping("/me")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> getMyCourses(@CurrentUser UserPrincipal currentUser) {
         User user = userRepository.findByUserId(currentUser.getUserId());
         if (user != null) {
             List<Course> courses = user.getCourses();
+            return new ResponseEntity<>(courses, HttpStatus.OK);
+        }
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    }
+
+    @GetMapping("/me/info")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<?> getMyCoursesInfo(@CurrentUser UserPrincipal currentUser) {
+        if (currentUser != null) {
+            List<CourseInfo> courses = coursesService.getCoursesByUser(currentUser);
             return new ResponseEntity<>(courses, HttpStatus.OK);
         }
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -120,10 +135,26 @@ public class CoursesController {
         return new ResponseEntity<>(new ApiResponse(false, "Course with this id doesn't exist"), HttpStatus.BAD_REQUEST);
     }
 
+    @GetMapping("/category/{categoryId}/info")
+    public ResponseEntity<?> getCoursesByCategoryId(@PathVariable("categoryId") Long categoryId,
+                                                    @CurrentUser UserPrincipal currentUser) {
+        List<CourseInfo> courses = coursesService.getCoursesByCategory(categoryId, currentUser);
+        return new ResponseEntity<>(courses, HttpStatus.OK);
+    }
+
     @GetMapping("/category/{categoryId}")
     public ResponseEntity<?> getCoursesByCategoryId(@PathVariable("categoryId") Long categoryId) {
-        Category category = categoryRepository.findByCategoryId(categoryId);
-        List<Course> courses = coursesService.getCoursesByCategory(category);
+        List<Course> courses = coursesService.getCoursesByCategory(categoryId);
+        return new ResponseEntity<>(courses, HttpStatus.OK);
+    }
+
+    @GetMapping("/search/{substring}/info")
+    public ResponseEntity<?> getCoursesBySubstring(@PathVariable("substring") String substring,
+                                                   @CurrentUser UserPrincipal currentUser) {
+        List<CourseInfo> courses = coursesService.getCoursesByTitleSubstring(substring, currentUser);
+        if (courses.isEmpty()) {
+            courses = coursesService.getTopCourses(currentUser);
+        }
         return new ResponseEntity<>(courses, HttpStatus.OK);
     }
 
@@ -131,8 +162,7 @@ public class CoursesController {
     public ResponseEntity<?> getCoursesBySubstring(@PathVariable("substring") String substring) {
         List<Course> courses = coursesService.getCoursesByTitleSubstring(substring);
         if (courses.isEmpty()) {
-            Pageable pageable = PageRequest.of(0, 5);
-            courses = coursesService.getTopCourses(pageable);
+            courses = coursesService.getTopCourses();
         }
         return new ResponseEntity<>(courses, HttpStatus.OK);
     }
