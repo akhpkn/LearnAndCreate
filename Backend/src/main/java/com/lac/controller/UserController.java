@@ -6,6 +6,7 @@ import com.lac.model.User;
 import com.lac.payload.ApiResponse;
 import com.lac.payload.PasswordRequest;
 import com.lac.payload.UploadFileResponse;
+import com.lac.payload.UserInfo;
 import com.lac.repository.EmailConfirmationRepository;
 import com.lac.repository.UserRepository;
 import com.lac.security.CurrentUser;
@@ -46,6 +47,14 @@ public class UserController {
     public ResponseEntity<User> getCurrentUser(@CurrentUser UserPrincipal currentUser) {
         User user = userRepository.findByUserId(currentUser.getUserId());
         return new ResponseEntity<>(user, HttpStatus.OK);
+    }
+
+    @GetMapping("/user/me/info")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<UserInfo> getCurrentUserInfo(@CurrentUser UserPrincipal currentUser) {
+        User user = userRepository.findByUserId(currentUser.getUserId());
+        UserInfo info = user.userInfo();
+        return new ResponseEntity<>(info, HttpStatus.OK);
     }
 
     @GetMapping("/user/checkUsernameAvailability")
