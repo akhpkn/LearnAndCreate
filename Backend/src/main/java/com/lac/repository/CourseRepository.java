@@ -22,7 +22,7 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
     List<Course> findAllByCategory(Category category, Sort sort);
 
     @Query("select c from Course c where c.category = :category " +
-            "order by size(c.users)")
+            "order by size(c.users) desc")
     List<Course> findByCategoryAndSortedBySubsNumber(@Param("category") Category category);
 
     List<Course> findAllByTitleContaining(String titleSubstring);
