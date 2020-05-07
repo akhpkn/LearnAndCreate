@@ -31,7 +31,7 @@ public class UserService {
         return true;
     }
 
-    public boolean editName(UserPrincipal currentUser, String name){
+    public boolean editName(UserPrincipal currentUser, String name) {
         if (name.length() > 20 || name.length() < 2)
             return false;
         User user = userRepository.findByUserId(currentUser.getUserId());

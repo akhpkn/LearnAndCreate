@@ -150,6 +150,20 @@ public class UserController {
         return new UploadFileResponse(image.getUrl(), image.getType(), file.getSize());
     }
 
+    @DeleteMapping("/user/me/image")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<?> removeUserImage(@CurrentUser UserPrincipal currentUser) {
+        User user = userRepository.findByUserId(currentUser.getUserId());
+        if (user.getImage() != null) {
+            imageService.deleteImage(user.getImage());
+            user.setImage(null);
+            userRepository.save(user);
+
+            return new ResponseEntity<>(new ApiResponse(true, "Image was removed"), HttpStatus.OK);
+        }
+        return new ResponseEntity<>(new ApiResponse(false, "Nothing to remove"), HttpStatus.BAD_REQUEST);
+    }
+
     @GetMapping("user/me/imagetype")
     public MediaType getImageContentType(@CurrentUser UserPrincipal currentUser) {
         User user = userRepository.findByUserId(currentUser.getUserId());
