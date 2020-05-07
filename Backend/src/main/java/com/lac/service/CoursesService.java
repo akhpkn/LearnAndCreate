@@ -63,9 +63,11 @@ public class CoursesService {
                                                UserPrincipal currentUser) {
         List<CourseInfo> courses;
 
-        if (categoryId == null)
+        if (categoryId == null && substring.isBlank())
+            courses = getAllCourses(currentUser);
+        else if (categoryId == null && !substring.isBlank())
             courses = getCoursesByTitleSubstringAndSorted(substring, sortId, currentUser);
-        else if (substring == null)
+        else if (categoryId != null && substring.isBlank())
             courses = getCoursesByCategoryAndSorted(categoryId, sortId, currentUser);
         else courses = getCoursesByCategoryAndTitleAndSorted(categoryId, substring, sortId, currentUser);
 
