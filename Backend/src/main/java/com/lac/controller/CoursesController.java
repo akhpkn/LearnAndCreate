@@ -187,12 +187,21 @@ public class CoursesController {
         return new ResponseEntity<>(courses, HttpStatus.OK);
     }
 
-    @GetMapping("category/{categoryId}/search/{substring}/sort/{sortId}")
+    @GetMapping("/category/{categoryId}/search/{substring}/sort/{sortId}")
     public ResponseEntity<?> getCoursesByCategoryAndSubstringAndSorted
             (@PathVariable("categoryId") Long categoryId, @PathVariable("substring") String substring,
              @PathVariable("sortId") Integer sortId, @CurrentUser UserPrincipal currentUser) {
         List<CourseInfo> courses = coursesService.
                 getCoursesByCategoryAndTitleAndSorted(categoryId, substring, sortId, currentUser);
+        return new ResponseEntity<>(courses, HttpStatus.OK);
+    }
+
+    @GetMapping("/filter")
+    public ResponseEntity<?> getFilteredCourses(@RequestParam(value = "category") Long categoryId,
+                                                @RequestParam(value = "substring") String substring,
+                                                @RequestParam(value = "sort") Integer sortId,
+                                                @CurrentUser UserPrincipal currentUser) {
+        List<CourseInfo> courses = coursesService.getFilteredCourses(categoryId, substring, sortId, currentUser);
         return new ResponseEntity<>(courses, HttpStatus.OK);
     }
 }

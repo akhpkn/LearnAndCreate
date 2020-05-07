@@ -59,6 +59,19 @@ public class CoursesService {
         return courses;
     }
 
+    public List<CourseInfo> getFilteredCourses(Long categoryId, String substring, Integer sortId,
+                                               UserPrincipal currentUser) {
+        List<CourseInfo> courses;
+
+        if (categoryId == null)
+            courses = getCoursesByTitleSubstringAndSorted(substring, sortId, currentUser);
+        else if (substring == null)
+            courses = getCoursesByCategoryAndSorted(categoryId, sortId, currentUser);
+        else courses = getCoursesByCategoryAndTitleAndSorted(categoryId, substring, sortId, currentUser);
+
+        return courses;
+    }
+
     public List<CourseInfo> getCoursesByCategory(Long categoryId, UserPrincipal currentUser) {
         Category category = categoryRepository.findByCategoryId(categoryId);
         List<Course> courseList = courseRepository.findAllByCategory(category);
@@ -72,15 +85,19 @@ public class CoursesService {
 
     public List<CourseInfo> getCoursesByCategoryAndSorted(Long categoryId, Integer sortId,
                                                       UserPrincipal currentUser) {
-        SortName sortName = SortName.values()[sortId];
         Category category = categoryRepository.findByCategoryId(categoryId);
         List<Course> courseList;
 
-        Sort sort = getSort(sortName);
+        if (sortId != null) {
+            SortName sortName = SortName.values()[sortId];
 
-        if (sort == null)
-            courseList = courseRepository.findByCategoryAndSortedBySubsNumber(category);
-        else courseList = courseRepository.findAllByCategory(category, sort);
+            Sort sort = getSort(sortName);
+
+            if (sort == null)
+                courseList = courseRepository.findByCategoryAndSortedBySubsNumber(category);
+            else courseList = courseRepository.findAllByCategory(category, sort);
+        }
+        else courseList = courseRepository.findAllByCategory(category);
 
         return getCourseInfos(currentUser, courseList);
     }
@@ -96,14 +113,19 @@ public class CoursesService {
 
     public List<CourseInfo> getCoursesByTitleSubstringAndSorted(String substring, Integer sortId,
                                                                 UserPrincipal currentUser ) {
-        SortName sortName = SortName.values()[sortId];
         List<Course> courseList;
 
-        Sort sort = getSort(sortName);
+        if (sortId != null) {
+            SortName sortName = SortName.values()[sortId];
 
-        if (sort == null)
-            courseList = courseRepository.findByTitleContainingAndSortedBySubsNumber(substring);
-        else courseList = courseRepository.findAllByTitleContaining(substring, sort);
+
+            Sort sort = getSort(sortName);
+
+            if (sort == null)
+                courseList = courseRepository.findByTitleContainingAndSortedBySubsNumber(substring);
+            else courseList = courseRepository.findAllByTitleContaining(substring, sort);
+        }
+        else courseList = courseRepository.findAllByTitleContaining(substring);
 
         return getCourseInfos(currentUser, courseList);
     }
@@ -111,14 +133,17 @@ public class CoursesService {
     public List<CourseInfo> getCoursesByCategoryAndTitleAndSorted(Long categoryId, String substring,
                                                                   Integer sortId, UserPrincipal currentUser) {
         Category category = categoryRepository.findByCategoryId(categoryId);
-        SortName sortName = SortName.values()[sortId];
         List<Course> courseList;
 
-        Sort sort = getSort(sortName);
+        if (sortId != null) {
+            SortName sortName = SortName.values()[sortId];
+            Sort sort = getSort(sortName);
 
-        if (sort == null)
-            courseList = courseRepository.findByCategoryAndTitleAndSortedBySubsNumber(category, substring);
-        else courseList = courseRepository.findAllByCategoryAndTitleContaining(category, substring, sort);
+            if (sort == null)
+                courseList = courseRepository.findByCategoryAndTitleAndSortedBySubsNumber(category, substring);
+            else courseList = courseRepository.findAllByCategoryAndTitleContaining(category, substring, sort);
+        }
+        else courseList = courseRepository.findAllByCategoryAndTitleContaining(category, substring);
 
         return getCourseInfos(currentUser, courseList);
     }
@@ -147,29 +172,6 @@ public class CoursesService {
     public List<Course> getTopCourses() {
         Pageable pageable = PageRequest.of(0, 5);
         return courseRepository.findTopPopularCourses(pageable);
-    }
-
-    public List<CourseInfo> getCoursesSortedByTitleAsc(UserPrincipal currentUser) {
-        Sort sort = new Sort(Sort.Direction.ASC, "title");
-        List<Course> courseList = courseRepository.findAll(sort);
-        return getCourseInfos(currentUser, courseList);
-    }
-
-    public List<CourseInfo> getCoursesSortedByTitleDesc(UserPrincipal currentUser) {
-        Sort sort = new Sort(Sort.Direction.DESC, "title");
-        List<Course> courseList = courseRepository.findAll(sort);
-        return getCourseInfos(currentUser, courseList);
-    }
-
-    public List<CourseInfo> getCoursesSortedByRateDesc(UserPrincipal currentUser) {
-        Sort sort = new Sort(Sort.Direction.DESC, "mark");
-        List<Course> courseList = courseRepository.findAll(sort);
-        return getCourseInfos(currentUser, courseList);
-    }
-
-    public List<CourseInfo> getCoursesSortedBySubscribersNumber(UserPrincipal currentUser) {
-        List<Course> courseList = courseRepository.findTopPopularCourses();
-        return getCourseInfos(currentUser, courseList);
     }
 
     public boolean addCourse(Course course) {

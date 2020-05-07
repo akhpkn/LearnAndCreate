@@ -33,6 +33,8 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
             "order by size(c.users) desc")
     List<Course> findByTitleContainingAndSortedBySubsNumber(@Param("title") String title);
 
+    List<Course> findAllByCategoryAndTitleContaining(Category category, String titleSubstring);
+
     List<Course> findAllByCategoryAndTitleContaining(Category category, String titleSubstring, Sort sort);
 
     @Query("select c from Course c where c.category = :category and c.title like %:title% " +
