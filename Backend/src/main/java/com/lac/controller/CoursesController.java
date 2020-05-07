@@ -6,6 +6,7 @@ import com.lac.model.User;
 import com.lac.payload.ApiResponse;
 import com.lac.payload.CourseInfo;
 import com.lac.payload.CourseRequest;
+import com.lac.payload.SortName;
 import com.lac.repository.CategoryRepository;
 import com.lac.repository.CourseRepository;
 import com.lac.repository.UserRepository;
@@ -17,6 +18,7 @@ import com.lac.service.VideoService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -164,6 +166,33 @@ public class CoursesController {
         if (courses.isEmpty()) {
             courses = coursesService.getTopCourses();
         }
+        return new ResponseEntity<>(courses, HttpStatus.OK);
+    }
+
+    @GetMapping("/search/{substring}/sort/{sortId}")
+    public ResponseEntity<?> getCoursesBySubstringAndSorted(@PathVariable("substring") String substring,
+                                                            @PathVariable("sortId") Integer sortId,
+                                                            @CurrentUser UserPrincipal currentUser) {
+        List<CourseInfo> courses = coursesService
+                .getCoursesByTitleSubstringAndSorted(substring, sortId, currentUser);
+        return new ResponseEntity<>(courses, HttpStatus.OK);
+    }
+
+    @GetMapping("/category/{categoryId}/sort/{sortId}")
+    public ResponseEntity<?> getCoursesByCategoryAndSorted(@PathVariable("categoryId") Long categoryId,
+                                                           @PathVariable("sortId") Integer sortId,
+                                                           @CurrentUser UserPrincipal currentUser) {
+        List<CourseInfo> courses = coursesService
+                .getCoursesByCategoryAndSorted(categoryId, sortId, currentUser);
+        return new ResponseEntity<>(courses, HttpStatus.OK);
+    }
+
+    @GetMapping("category/{categoryId}/search/{substring}/sort/{sortId}")
+    public ResponseEntity<?> getCoursesByCategoryAndSubstringAndSorted
+            (@PathVariable("categoryId") Long categoryId, @PathVariable("substring") String substring,
+             @PathVariable("sortId") Integer sortId, @CurrentUser UserPrincipal currentUser) {
+        List<CourseInfo> courses = coursesService.
+                getCoursesByCategoryAndTitleAndSorted(categoryId, substring, sortId, currentUser);
         return new ResponseEntity<>(courses, HttpStatus.OK);
     }
 }

@@ -3,6 +3,7 @@ package com.lac.service;
 import com.amazonaws.services.s3.AmazonS3;
 import com.lac.model.*;
 import com.lac.payload.CourseInfo;
+import com.lac.payload.SortName;
 import com.lac.repository.CategoryRepository;
 import com.lac.repository.CourseRepository;
 import com.lac.repository.UserRepository;
@@ -15,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -68,6 +70,21 @@ public class CoursesService {
         return courseRepository.findAllByCategory(category);
     }
 
+    public List<CourseInfo> getCoursesByCategoryAndSorted(Long categoryId, Integer sortId,
+                                                      UserPrincipal currentUser) {
+        SortName sortName = SortName.values()[sortId];
+        Category category = categoryRepository.findByCategoryId(categoryId);
+        List<Course> courseList;
+
+        Sort sort = getSort(sortName);
+
+        if (sort == null)
+            courseList = courseRepository.findByCategoryAndSortedBySubsNumber(category);
+        else courseList = courseRepository.findAllByCategory(category, sort);
+
+        return getCourseInfos(currentUser, courseList);
+    }
+
     public List<CourseInfo> getCoursesByTitleSubstring(String substring, UserPrincipal currentUser) {
         List<Course> courseList = courseRepository.findAllByTitleContaining(substring);
         return getCourseInfos(currentUser, courseList);
@@ -75,6 +92,35 @@ public class CoursesService {
 
     public List<Course> getCoursesByTitleSubstring(String substring) {
         return courseRepository.findAllByTitleContaining(substring);
+    }
+
+    public List<CourseInfo> getCoursesByTitleSubstringAndSorted(String substring, Integer sortId,
+                                                                UserPrincipal currentUser ) {
+        SortName sortName = SortName.values()[sortId];
+        List<Course> courseList;
+
+        Sort sort = getSort(sortName);
+
+        if (sort == null)
+            courseList = courseRepository.findByTitleContainingAndSortedBySubsNumber(substring);
+        else courseList = courseRepository.findAllByTitleContaining(substring, sort);
+
+        return getCourseInfos(currentUser, courseList);
+    }
+
+    public List<CourseInfo> getCoursesByCategoryAndTitleAndSorted(Long categoryId, String substring,
+                                                                  Integer sortId, UserPrincipal currentUser) {
+        Category category = categoryRepository.findByCategoryId(categoryId);
+        SortName sortName = SortName.values()[sortId];
+        List<Course> courseList;
+
+        Sort sort = getSort(sortName);
+
+        if (sort == null)
+            courseList = courseRepository.findByCategoryAndTitleAndSortedBySubsNumber(category, substring);
+        else courseList = courseRepository.findAllByCategoryAndTitleContaining(category, substring, sort);
+
+        return getCourseInfos(currentUser, courseList);
     }
 
     public List<CourseInfo> getTopCourses(UserPrincipal currentUser) {
@@ -101,6 +147,29 @@ public class CoursesService {
     public List<Course> getTopCourses() {
         Pageable pageable = PageRequest.of(0, 5);
         return courseRepository.findTopPopularCourses(pageable);
+    }
+
+    public List<CourseInfo> getCoursesSortedByTitleAsc(UserPrincipal currentUser) {
+        Sort sort = new Sort(Sort.Direction.ASC, "title");
+        List<Course> courseList = courseRepository.findAll(sort);
+        return getCourseInfos(currentUser, courseList);
+    }
+
+    public List<CourseInfo> getCoursesSortedByTitleDesc(UserPrincipal currentUser) {
+        Sort sort = new Sort(Sort.Direction.DESC, "title");
+        List<Course> courseList = courseRepository.findAll(sort);
+        return getCourseInfos(currentUser, courseList);
+    }
+
+    public List<CourseInfo> getCoursesSortedByRateDesc(UserPrincipal currentUser) {
+        Sort sort = new Sort(Sort.Direction.DESC, "mark");
+        List<Course> courseList = courseRepository.findAll(sort);
+        return getCourseInfos(currentUser, courseList);
+    }
+
+    public List<CourseInfo> getCoursesSortedBySubscribersNumber(UserPrincipal currentUser) {
+        List<Course> courseList = courseRepository.findTopPopularCourses();
+        return getCourseInfos(currentUser, courseList);
     }
 
     public boolean addCourse(Course course) {
@@ -144,5 +213,23 @@ public class CoursesService {
             courses.add(info);
         }
         return courses;
+    }
+
+    private Sort getSort(SortName sortName) {
+        Sort sort = null;
+        switch (sortName) {
+            case RATE:
+                sort = new Sort(Sort.Direction.DESC, "mark");
+                break;
+            case TITLE_ASC:
+                sort = new Sort(Sort.Direction.ASC, "title");
+                break;
+            case TITLE_DESC:
+                sort = new Sort(Sort.Direction.DESC, "title");
+                break;
+            case SUBS_NUMBER:
+                break;
+        }
+        return sort;
     }
 }
