@@ -9,10 +9,8 @@ import com.lac.repository.CourseRepository;
 import com.lac.repository.UserRepository;
 import com.lac.security.UserPrincipal;
 import lombok.RequiredArgsConstructor;
-import org.apache.catalina.startup.Catalina;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -63,11 +61,11 @@ public class CoursesService {
                                                UserPrincipal currentUser) {
         List<CourseInfo> courses;
 
-        if (categoryId == null && substring.isBlank())
+        if (categoryId == null && substring.isEmpty())
             courses = getAllCourses(currentUser);
-        else if (categoryId == null && !substring.isBlank())
+        else if (categoryId == null)
             courses = getCoursesByTitleSubstringAndSorted(substring, sortId, currentUser);
-        else if (categoryId != null && substring.isBlank())
+        else if (substring.isEmpty())
             courses = getCoursesByCategoryAndSorted(categoryId, sortId, currentUser);
         else courses = getCoursesByCategoryAndTitleAndSorted(categoryId, substring, sortId, currentUser);
 
@@ -86,7 +84,7 @@ public class CoursesService {
     }
 
     public List<CourseInfo> getCoursesByCategoryAndSorted(Long categoryId, Integer sortId,
-                                                      UserPrincipal currentUser) {
+                                                          UserPrincipal currentUser) {
         Category category = categoryRepository.findByCategoryId(categoryId);
         List<Course> courseList;
 
