@@ -68,11 +68,11 @@ public class AuthController {
     @PostMapping("/signup")
     public ResponseEntity<?> registerUser(@Valid @RequestBody SignUpRequest request) {
         if (userRepository.existsByUsername(request.getUsername())) {
-            return new ResponseEntity<>(new ApiResponse(false, "Username is already taken!"),
+            return new ResponseEntity<>(new ApiResponse(false, "Такое имя пользователя уже занято!"),
                     HttpStatus.BAD_REQUEST);
         }
         if (userRepository.existsByEmail(request.getEmail())) {
-            return new ResponseEntity<>(new ApiResponse(false, "Email is already in use!"),
+            return new ResponseEntity<>(new ApiResponse(false, "Такой email уже привзяан к другому аккаунту!"),
                     HttpStatus.BAD_REQUEST);
         }
 
@@ -91,7 +91,7 @@ public class AuthController {
                 .fromCurrentContextPath().path("/api/users/{username}")
                 .buildAndExpand(result.getUsername()).toUri();
 
-        return ResponseEntity.created(location).body(new ApiResponse(true, "User registered successfully"));
+        return ResponseEntity.created(location).body(new ApiResponse(true, "Вы успешно зарегистрированы!"));
     }
 
     @PostMapping("/forgotpassword")
@@ -99,7 +99,7 @@ public class AuthController {
         boolean success = emailService.sendPassword(usernameOrEmail);
 
         if (success)
-            return new ResponseEntity<>(new ApiResponse(true, "Temporary password was sent to your email"), HttpStatus.OK);
-        else return new ResponseEntity<>(new ApiResponse(false, "User with this email or username not found"), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new ApiResponse(true, "Временный пароль был выслан на вашу почту."), HttpStatus.OK);
+        else return new ResponseEntity<>(new ApiResponse(false, "Пользователь с таким именем или email не найден."), HttpStatus.BAD_REQUEST);
     }
 }

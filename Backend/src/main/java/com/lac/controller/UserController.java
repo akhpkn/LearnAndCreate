@@ -74,8 +74,8 @@ public class UserController {
     public ResponseEntity<?> editName(@CurrentUser UserPrincipal currentUser,
                                          @RequestParam(name = "name") String name) {
         if(userService.editName(currentUser, name))
-            return new ResponseEntity<>(new ApiResponse(true, "Name was edited successfully"), HttpStatus.OK);
-        return new ResponseEntity<>(new ApiResponse(false, "Name was not edited. Name is incorrect"), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new ApiResponse(true, "Имя успешно изменено"), HttpStatus.OK);
+        return new ResponseEntity<>(new ApiResponse(false, "Имя не было изменено. Неверное имя"), HttpStatus.BAD_REQUEST);
     }
 
     @PutMapping("/user/me/edit/username")
@@ -83,10 +83,10 @@ public class UserController {
     public ResponseEntity<?> editUsername(@CurrentUser UserPrincipal currentUser,
                                           @RequestParam(name = "username") String username) {
         if (userRepository.existsByUsername(username))
-            return new ResponseEntity<>(new ApiResponse(false, "Username was not edited. The username is already taken"), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new ApiResponse(false, "Имя пользователя не было изменено. Имя пользоваьеля уже занято"), HttpStatus.BAD_REQUEST);
         if(userService.editUsername(currentUser, username))
-            return new ResponseEntity<>(new ApiResponse(true, "Username was edited successfully"), HttpStatus.OK);
-        return new  ResponseEntity<>(new ApiResponse(false, "Username was not edited. The username is incorrect"), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new ApiResponse(true, "Имя пользователя было успешно изменено"), HttpStatus.OK);
+        return new  ResponseEntity<>(new ApiResponse(false, "Имя пользователя не было изменено. Неверное имя"), HttpStatus.BAD_REQUEST);
     }
 
     @PutMapping("user/me/edit/password")
@@ -109,8 +109,8 @@ public class UserController {
         boolean flag = emailService.sendCodeToConfirmEmail(user.getEmail(), email.toLowerCase());
 
         if (flag)
-            return new ResponseEntity<>(new ApiResponse(true, "Confirmation code was sent to your email"), HttpStatus.OK);
-        return new ResponseEntity<>(new ApiResponse(false, "This email is already in use"), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new ApiResponse(true, "Код подтверждения был выслан на Ваш email"), HttpStatus.OK);
+        return new ResponseEntity<>(new ApiResponse(false, "Email уже используется"), HttpStatus.BAD_REQUEST);
     }
 
     @PutMapping("/user/me/edit/email/confirm")
@@ -121,15 +121,15 @@ public class UserController {
         EmailConfirmation confirmation = emailConfirmationRepository.findByUser(user);
 
         if (confirmation == null)
-            return new ResponseEntity<>(new ApiResponse(false, "You don't need to confirm email"), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new ApiResponse(false, "Вам не нужно подтверждать email"), HttpStatus.BAD_REQUEST);
         if (!confirmation.getCode().equals(code))
-            return new ResponseEntity<>(new ApiResponse(false, "Incorrect confirmation code"), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new ApiResponse(false, "Неверный код подтверждения"), HttpStatus.BAD_REQUEST);
 
         user.setEmail(confirmation.getNewEmail());
         emailConfirmationRepository.delete(confirmation);
         userRepository.save(user);
 
-        return new ResponseEntity<>(new ApiResponse(true, "Email was edited"), HttpStatus.OK);
+        return new ResponseEntity<>(new ApiResponse(true, "Email был изменен"), HttpStatus.OK);
     }
 
     @PostMapping("/user/me/image")
@@ -157,9 +157,9 @@ public class UserController {
             user.setImage(null);
             userRepository.save(user);
 
-            return new ResponseEntity<>(new ApiResponse(true, "Image was removed"), HttpStatus.OK);
+            return new ResponseEntity<>(new ApiResponse(true, "Аватар был удален"), HttpStatus.OK);
         }
-        return new ResponseEntity<>(new ApiResponse(false, "Nothing to remove"), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(new ApiResponse(false, "Аватар не был удален, его не существует"), HttpStatus.BAD_REQUEST);
     }
 
     @GetMapping("user/me/imagetype")

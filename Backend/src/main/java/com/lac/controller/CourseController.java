@@ -97,9 +97,9 @@ public class CourseController {
                                          @PathVariable("courseId") Long courseId) {
         boolean flag = courseService.addFeedback(currentUser, request, courseId);
         if (flag)
-            return new ResponseEntity<>(new ApiResponse(true,"Feedback was saved"), HttpStatus.OK);
+            return new ResponseEntity<>(new ApiResponse(true,"Отзыв оставлен!"), HttpStatus.OK);
         return new ResponseEntity<>(
-                new ApiResponse(false, "Nonexistent course or user!"),
+                new ApiResponse(false, "Несуществующий курс или пользователь!"),
                 HttpStatus.BAD_REQUEST);
     }
 
@@ -123,8 +123,8 @@ public class CourseController {
                                                 @PathVariable("courseId") Long courseId) {
         boolean flag = courseService.subscribeCourse(currentUser, courseId);
         if (flag)
-            return new ResponseEntity<>(new ApiResponse(true, "You subscribed to the course"), HttpStatus.OK);
-        else return new ResponseEntity<>(new ApiResponse(false, "Error"), HttpStatus.CONFLICT);
+            return new ResponseEntity<>(new ApiResponse(true, "Вы подписались на курс!"), HttpStatus.OK);
+        else return new ResponseEntity<>(new ApiResponse(false, "Ошибка!"), HttpStatus.CONFLICT);
     }
 
     @DeleteMapping("/{courseId}")
@@ -133,8 +133,8 @@ public class CourseController {
                                                   @PathVariable("courseId") Long courseId) {
         boolean flag = courseService.unsubscribeCourse(currentUser, courseId);
         if (flag)
-            return new ResponseEntity<>(new ApiResponse(true, "You unsubscribed from the course"), HttpStatus.OK);
-        else return new ResponseEntity<>(new ApiResponse(false, "Error"), HttpStatus.CONFLICT);
+            return new ResponseEntity<>(new ApiResponse(true, "Вы отписались от курса!"), HttpStatus.OK);
+        else return new ResponseEntity<>(new ApiResponse(false, "Ошибка!"), HttpStatus.CONFLICT);
     }
 
     @PostMapping("{courseId}/lesson")
@@ -175,7 +175,7 @@ public class CourseController {
         Lesson lesson = courseService.getNextLesson(courseId, lessonId);
         if (lesson != null)
             return new ResponseEntity<>(lesson, HttpStatus.OK);
-        return new ResponseEntity<>(new ApiResponse(false, "Next lesson doesn't exist"), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(new ApiResponse(false, "Следующего урока не существует!"), HttpStatus.BAD_REQUEST);
     }
 
     @GetMapping("/{courseId}/lesson/{lessonId}/previous")
@@ -184,7 +184,7 @@ public class CourseController {
         Lesson lesson = courseService.getPreviousLesson(courseId, lessonId);
         if (lesson != null)
             return new ResponseEntity<>(lesson, HttpStatus.OK);
-        return new ResponseEntity<>(new ApiResponse(false, "Previous lesson doesn't exist"), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(new ApiResponse(false, "Предыдущего урока не существует!"), HttpStatus.BAD_REQUEST);
     }
 
     @PostMapping("{courseId}/video")
