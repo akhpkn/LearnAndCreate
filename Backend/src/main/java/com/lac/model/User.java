@@ -1,6 +1,7 @@
 package com.lac.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.lac.payload.UserInfo;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -91,5 +92,16 @@ public class User {
 
     public void unsubscribe(Course course) {
         courses.remove(course);
+    }
+
+    public UserInfo userInfo() {
+        return UserInfo.builder()
+                .email(email)
+                .imageUrl(image == null ? "url" : image.getUrl())
+                .name(name)
+                .subscriptions(courses.size())
+                .userId(userId)
+                .username(username)
+                .build();
     }
 }
