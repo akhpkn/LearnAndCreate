@@ -118,16 +118,15 @@ public class UserController {
     public ResponseEntity<?> confirmEmail(@CurrentUser UserPrincipal currentUser,
                                           @RequestParam("code") String code) {
         User user = userRepository.findByUserId(currentUser.getUserId());
+        EmailConfirmation confirmation = emailConfirmationRepository.findByUser(user);
 
-        if (user.getEmailConfirmation() == null)
+        if (confirmation == null)
             return new ResponseEntity<>(new ApiResponse(false, "You don't need to confirm email"), HttpStatus.BAD_REQUEST);
-        if (!user.getEmailConfirmation().getCode().equals(code))
+        if (!confirmation.getCode().equals(code))
             return new ResponseEntity<>(new ApiResponse(false, "Incorrect confirmation code"), HttpStatus.BAD_REQUEST);
 
-        EmailConfirmation confirmation = user.getEmailConfirmation();
         user.setEmail(confirmation.getNewEmail());
         emailConfirmationRepository.delete(confirmation);
-        user.setEmailConfirmation(null);
         userRepository.save(user);
 
         return new ResponseEntity<>(new ApiResponse(true, "Email was edited"), HttpStatus.OK);
@@ -140,7 +139,6 @@ public class UserController {
         User user = userRepository.findByUserId(currentUser.getUserId());
         if (user.getImage() != null)
             imageService.deleteImage(user.getImage());
-
         Image image = imageService.store(file);
 
         user.setImage(image);

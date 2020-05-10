@@ -6,7 +6,6 @@ import com.lac.model.User;
 import com.lac.payload.ApiResponse;
 import com.lac.payload.CourseInfo;
 import com.lac.payload.CourseRequest;
-import com.lac.payload.SortName;
 import com.lac.repository.CategoryRepository;
 import com.lac.repository.CourseRepository;
 import com.lac.repository.UserRepository;
@@ -18,7 +17,6 @@ import com.lac.service.VideoService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,8 +25,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.validation.Valid;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/api/courses")
@@ -85,7 +83,7 @@ public class CoursesController {
     public ResponseEntity<?> getCoursesByUserId(@PathVariable("userId") Long userId) {
         User user = userRepository.findByUserId(userId);
         if (user != null) {
-            List<Course> courses = user.getCourses();
+            Set<Course> courses = user.getCourses();
             return new ResponseEntity<>(courses, HttpStatus.OK);
         }
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -96,7 +94,7 @@ public class CoursesController {
     public ResponseEntity<?> getMyCourses(@CurrentUser UserPrincipal currentUser) {
         User user = userRepository.findByUserId(currentUser.getUserId());
         if (user != null) {
-            List<Course> courses = user.getCourses();
+            Set<Course> courses = user.getCourses();
             return new ResponseEntity<>(courses, HttpStatus.OK);
         }
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);

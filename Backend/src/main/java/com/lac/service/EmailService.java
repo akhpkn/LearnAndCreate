@@ -55,10 +55,11 @@ public class EmailService {
         if (userRepository.existsByEmail(newEmail))
             return false;
 
-        EmailConfirmation confirmation = new EmailConfirmation(code, newEmail);
         User user = userRepository.findByEmail(oldEmail);
-        user.setEmailConfirmation(confirmation);
-        userRepository.save(user);
+        EmailConfirmation confirmation = new EmailConfirmation(code, newEmail);
+        confirmation.setUser(user);
+        emailConfirmationRepository.save(confirmation);
+//        userRepository.save(user);
 
         message.setTo(newEmail);
         message.setSubject("Подтверждение новой почты");

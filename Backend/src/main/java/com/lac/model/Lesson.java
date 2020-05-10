@@ -36,18 +36,20 @@ public class Lesson {
    @NotBlank
    private String duration;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinTable(name = "lesson_video",
-            joinColumns = @JoinColumn(name = "lesson_id"),
-            inverseJoinColumns = @JoinColumn(name = "file_id"))
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "video_id")
     private Video video;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "course_id")
+    private Course course;
 
     @OneToMany(fetch = FetchType.LAZY)
     @JsonIgnore
     @JoinTable(name = "lesson_comments",
             joinColumns = @JoinColumn(name = "lesson_id"),
             inverseJoinColumns = @JoinColumn(name = "comment_id"))
-    private List<Comment> comments = new ArrayList<>();
+    private Set<Comment> comments = new HashSet<>();
 
     public Lesson(Long lessonId, String title, String description){
         this.lessonId = lessonId;

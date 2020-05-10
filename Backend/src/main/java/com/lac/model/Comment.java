@@ -1,5 +1,6 @@
 package com.lac.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.lac.payload.CommentInfo;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -36,11 +37,14 @@ public class Comment {
     @Column(name = "date_of_creation")
     private String date;
 
-    @OneToOne
-    @JoinTable(name = "comment_user",
-            joinColumns = @JoinColumn(name = "comment_id"),
-            inverseJoinColumns = @JoinColumn(name = "user_id"))
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
     private User user;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnore
+    @JoinColumn(name = "course_id")
+    private Course course;
 
     public Comment(String text, Integer mark){
         String months[] = {"января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября",

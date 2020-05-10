@@ -1,5 +1,6 @@
 package com.lac.controller;
 
+import com.lac.model.Image;
 import com.lac.model.Role;
 import com.lac.model.RoleName;
 import com.lac.model.User;
@@ -7,6 +8,7 @@ import com.lac.payload.ApiResponse;
 import com.lac.payload.JwtAuthenticationResponse;
 import com.lac.payload.LoginRequest;
 import com.lac.payload.SignUpRequest;
+import com.lac.repository.FileRepository;
 import com.lac.repository.RoleRepository;
 import com.lac.repository.UserRepository;
 import com.lac.security.JwtTokenProvider;
@@ -38,6 +40,8 @@ public class AuthController {
     private final UserRepository userRepository;
 
     private final RoleRepository roleRepository;
+
+    private final FileRepository fileRepository;
 
     private final PasswordEncoder passwordEncoder;
 
