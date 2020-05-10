@@ -81,7 +81,7 @@ public class LessonController {
                                        @CurrentUser UserPrincipal currentUser) {
         boolean flag = lessonService.viewLesson(currentUser, lessonId);
         if (flag)
-            return new ResponseEntity<>(new ApiResponse(true, "User views lesson"), HttpStatus.OK);
-        return new ResponseEntity<>(new ApiResponse(false, "User has already viewed lesson"), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new ApiResponse(true, "Пользователь просмотрел урок"), HttpStatus.OK);
+        return new ResponseEntity<>(new ApiResponse(false, "Пользователь уже просмотрел урок"), HttpStatus.BAD_REQUEST);
     }
 }

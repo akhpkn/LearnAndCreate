@@ -133,8 +133,8 @@ public class CoursesController {
         Course course = courseRepository.findByCourseId(courseId);
         boolean success = coursesService.removeCourse(course);
         if (success)
-            return new ResponseEntity<>(new ApiResponse(true, "Course is removed"), HttpStatus.OK);
-        return new ResponseEntity<>(new ApiResponse(false, "Course with this id doesn't exist"), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new ApiResponse(true, "Курс удален"), HttpStatus.OK);
+        return new ResponseEntity<>(new ApiResponse(false, "Не существует курса с таким ID"), HttpStatus.BAD_REQUEST);
     }
 
     @GetMapping("/category/{categoryId}/info")
