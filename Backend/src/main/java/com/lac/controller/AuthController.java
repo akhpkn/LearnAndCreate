@@ -76,7 +76,7 @@ public class AuthController {
                     HttpStatus.BAD_REQUEST);
         }
 
-        User user = new User(request.getName(), request.getUsername(), request.getEmail(), request.getPassword());
+        User user = new User(request.getName(), request.getSurname(), request.getUsername(), request.getEmail(), request.getPassword());
 
         Role userRole = roleRepository.findByName(RoleName.ROLE_USER);
         if (userRole == null)

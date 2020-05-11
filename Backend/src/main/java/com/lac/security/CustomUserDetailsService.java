@@ -23,7 +23,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String usernameOrEmail) throws UsernameNotFoundException {
         User user = userRepository.findByUsernameOrEmail(usernameOrEmail, usernameOrEmail);
         if (user == null)
-            throw new UsernameNotFoundException("User not found with username or email : " + usernameOrEmail);
+            throw new UsernameNotFoundException("Такой пользователь не найден: " + usernameOrEmail);
         return UserPrincipal.create(user);
     }
 
@@ -31,7 +31,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     public UserDetails loadUserById(Long userId) {
         User user = userRepository.findByUserId(userId);
         if (user == null)
-            throw new UsernameNotFoundException("User not found with id : " + userId);
+            throw new UsernameNotFoundException("Пользователь с таким id не найден: " + userId);
         return UserPrincipal.create(user);
     }
 }
