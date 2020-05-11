@@ -5,8 +5,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "progresses")
@@ -16,15 +16,19 @@ import java.util.List;
 public class Progress {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "progress_id")
     private Long progressId;
+
+    @OneToOne
+    @MapsId
+    @JoinColumn(name = "user_id")
+    private User user;
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "progress_lesson",
             joinColumns = @JoinColumn(name = "progress_id"),
             inverseJoinColumns = @JoinColumn(name = "lesson_id"))
-    private List<Lesson> lessons = new ArrayList<>();
+    private Set<Lesson> lessons = new HashSet<>();
 
     public boolean addLesson(Lesson lesson) {
         if (lessons.contains(lesson))

@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Set;
 
 
 public interface CourseRepository extends JpaRepository<Course, Long> {
@@ -46,4 +47,7 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
 
     @Query("select c from Course c order by size(c.users) desc ")
     List<Course> findTopPopularCourses();
+
+    @Query("select c from Course c order by c.courseId")
+    List<Course> findAllCourses();
 }

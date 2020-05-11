@@ -15,7 +15,6 @@ import javax.validation.constraints.Email;
 public class EmailConfirmation {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "confirmation_id")
     private Long confirmationId;
 
@@ -23,6 +22,11 @@ public class EmailConfirmation {
 
     @Email
     private String newEmail;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    @MapsId
+    private User user;
 
     public EmailConfirmation(String code, String newEmail) {
         this.code = code;

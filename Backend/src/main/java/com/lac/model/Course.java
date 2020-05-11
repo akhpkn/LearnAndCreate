@@ -45,31 +45,18 @@ public class Course {
     @Column(name = "course_load")
     private String load;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinTable(name = "course_image",
-            joinColumns = @JoinColumn(name = "course_id "),
-            inverseJoinColumns = @JoinColumn(name = "file_id"))
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "image_id")
     private Image image;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinTable(name = "course_video",
-            joinColumns = @JoinColumn(name = "course_id"),
-            inverseJoinColumns = @JoinColumn(name = "file_id"))
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "video_id")
     private Video video;
 
-    @ManyToOne
-    @JoinTable(name = "course_category",
-            joinColumns = @JoinColumn(name = "course_id"),
-            inverseJoinColumns = @JoinColumn(name = "category_id"))
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id")
     private Category category;
 
-//    @NotBlank
-//    @Column(name = "date_creation")
-//    private Date date;
-//
-//    @NotBlank
-//    private Integer duration;
-//
     private Double mark = 0.0;
 
     @Column(name = "num_marks")
@@ -82,42 +69,6 @@ public class Course {
             inverseJoinColumns = @JoinColumn(name = "user_id"))
     private Set<User> users = new HashSet<>();
 
-//    @OneToOne(fetch = FetchType.LAZY)
-//    @JsonIgnore
-//    @JoinTable(name = "creator_user",
-//            joinColumns = @JoinColumn(name = "course_id"),
-//            inverseJoinColumns = @JoinColumn(name = "user_id"))
-//    private User creator = new User();
-
-//    @OneToOne(fetch = FetchType.LAZY)
-//    @JsonIgnore
-//    @JoinTable(name = "course_video",
-//            joinColumns = @JoinColumn(name = "course_id"),
-//            inverseJoinColumns = @JoinColumn(name = "file_id"))
-//    private Video video = new Video();
-
-
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JsonIgnore
-    @JoinTable(name = "course_lessons",
-            joinColumns = @JoinColumn(name = "course_id"),
-            inverseJoinColumns = @JoinColumn(name = "lesson_id"))
-    private List<Lesson> lessons = new ArrayList<>();
-
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JsonIgnore
-    @JoinTable(name = "course_comments",
-            joinColumns = @JoinColumn(name = "course_id"),
-            inverseJoinColumns = @JoinColumn(name = "comment_id"))
-    private List<Comment> comments = new ArrayList<>();
-
-//    @ManyToMany( fetch =  FetchType.LAZY)
-//    @JsonIgnore
-//    @JoinTable(name = "course_tags",
-//            joinColumns = @JoinColumn(name  = "course_id"),
-//            inverseJoinColumns =  @JoinColumn(name = "tag_id"))
-//    private Set<Tag> tags = new HashSet<>();// потом заменим на нормальный тег
-
     public Course(String title, String description, String descriptionLong, String language, String load, Category category) {
         this.title = title;
         this.description = description;
@@ -127,19 +78,7 @@ public class Course {
         this.category = category;
     }
 
-    public void addComment(Comment comment){
-        comments.add(comment);
-    }
-
-    public void deleteComment(Comment comment){
-        comments.remove(comment);
-    }
-
-    public void addLesson(Lesson lesson) {
-        lessons.add(lesson);
-    }
-
-    public CourseInfo courseInfo(boolean subscribed) {
+    public CourseInfo courseInfo(boolean subscribed, int reviews, int lessons) {
         return CourseInfo.builder()
                 .courseId(courseId)
                 .title(title)
@@ -151,10 +90,10 @@ public class Course {
                 .introVideoUrl(video == null ? "url" : video.getUrl())
                 .introVideoId(video == null ? 1 : video.getFileId())
                 .subsNumber(users.size())
-                .reviewsNumber(comments.size())
+                .reviewsNumber(reviews)
                 .marksNumber(numMarks)
                 .mark(mark)
-                .lessonsNumber(lessons.size())
+                .lessonsNumber(lessons)
                 .descriptionLong(descriptionLong)
                 .subscribed(subscribed)
                 .build();

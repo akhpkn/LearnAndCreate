@@ -2,6 +2,7 @@ package com.lac.service;
 
 import com.lac.model.*;
 import com.lac.payload.CommentInfo;
+import com.lac.payload.CourseInfo;
 import com.lac.payload.FeedbackRequest;
 import com.lac.payload.LessonInfo;
 import com.lac.repository.*;
@@ -11,7 +12,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 @Service
 @AllArgsConstructor
@@ -22,6 +22,8 @@ public class CourseService {
     private final CourseRepository courseRepository;
 
     private final LessonRepository lessonRepository;
+
+    private final ProgressRepository progressRepository;
 
     private final UserRepository userRepository;
 
@@ -54,7 +56,8 @@ public class CourseService {
                 if (!request.getText().equals("")) {
                     Comment comment = new Comment(request.getText(), request.getMark());
                     comment.setUser(userRepository.findByUserId(currentUser.getUserId()));
-                    course.addComment(comment);
+                    comment.setCourse(course);
+                    commentRepository.save(comment);
                 }
                 courseRepository.save(course);
                 return true;
@@ -91,14 +94,15 @@ public class CourseService {
     }
 
     public List<Comment> getAllCommentsByCourseId(Long courseId) {
-        Course course = courseRepository.findByCourseId(courseId);
-        return course.getComments();
+//        Course course = courseRepository.findByCourseId(courseId);
+        return commentRepository.findAllByCourseId(courseId);
+//        return new ArrayList<>(course.getComments());
     }
 
     public List<CommentInfo> getAllReviewsByCourseId(Long courseId) {
-        Course course = courseRepository.findByCourseId(courseId);
+        List<Comment> comments = commentRepository.findAllByCourseId(courseId);
         List<CommentInfo> reviews = new ArrayList<>();
-        for (Comment review : course.getComments())
+        for (Comment review : comments)
             reviews.add(review.commentInfo());
         return reviews;
     }
@@ -110,28 +114,23 @@ public class CourseService {
     public boolean addLesson(Long courseId, Lesson lesson) {
         Course course = courseRepository.findByCourseId(courseId);
         if (course != null) {
-            course.addLesson(lesson);
-            courseRepository.save(course);
+            lesson.setCourse(course);
+            lessonRepository.save(lesson);
             return true;
         }
         return false;
     }
 
     public List<Lesson> getLessonsByCourseId(Long courseId) {
-        Course course = courseRepository.findByCourseId(courseId);
-        if (course != null)
-            return course.getLessons();
-        return new ArrayList<>();
+        return lessonRepository.findAllByCourseId(courseId);
     }
 
     public List<LessonInfo> getAllLessons(Long courseId, UserPrincipal currentUser) {
-        Course course = courseRepository.findByCourseId(courseId);
-        User user = userRepository.findByUserId(currentUser.getUserId());
-        Progress userProgress = user.getProgress();
+        List<Lesson> lessons = lessonRepository.findAllByCourseId(courseId);
+        Progress userProgress = progressRepository.findByUserId(currentUser.getUserId());
 
         List<LessonInfo> infos = new ArrayList<>();
-        for (Lesson lesson : course.getLessons()) {
-
+        for (Lesson lesson : lessons) {
             if (userProgress == null || !userProgress.getLessons().contains(lesson))
                 infos.add(lesson.lessonInfo(false));
             else infos.add(lesson.lessonInfo(true));
@@ -140,30 +139,52 @@ public class CourseService {
     }
 
     public Lesson getNextLesson(Long courseId, Long lessonId) {
-        Course course = courseRepository.findByCourseId(courseId);
-        if (course != null) {
-            List<Lesson> lessons = course.getLessons();
+//        Course course = courseRepository.findByCourseId(courseId);
+//        if (course != null) {
+//            List<Lesson> lessons = new ArrayList<>(course.getLessons());
+            List<Lesson> lessons = lessonRepository.findAllByCourseId(courseId);
+            if (lessons == null)
+                return null;
+
             int i = lessons.indexOf(lessonRepository.findByLessonId(lessonId));
 
             if (i < lessons.size() - 1 && i >= 0)
                 return lessons.get(i + 1);
 
             return null;
-        }
-        return null;
+//        }
+//        return null;
     }
 
     public Lesson getPreviousLesson(Long courseId, Long lessonId) {
-        Course course = courseRepository.findByCourseId(courseId);
-        if (course != null) {
-            List<Lesson> lessons = course.getLessons();
+//        Course course = courseRepository.findByCourseId(courseId);
+//        if (course != null) {
+//            List<Lesson> lessons = new ArrayList<>(course.getLessons());
+            List<Lesson> lessons = lessonRepository.findAllByCourseId(courseId);
+            if (lessons == null)
+                return null;
+
             int i = lessons.indexOf(lessonRepository.findByLessonId(lessonId));
 
             if (i > 0 && i <= lessons.size())
                 return lessons.get(i - 1);
 
             return null;
+//        }
+//        return null;
+    }
+
+    public CourseInfo getCourseInfo(UserPrincipal currentUser, Long courseId) {
+        Course course = courseRepository.findByCourseId(courseId);
+        boolean subscribed = false;
+        if (currentUser != null) {
+            User user = userRepository.findByUserId(currentUser.getUserId());
+            subscribed = user.getCourses().contains(course);
         }
-        return null;
+//        List<Comment> comments = commentRepository.findAllByCourse(course);
+//        List<Lesson> lessons = lessonRepository.findAllByCourse(course);
+        int reviews = commentRepository.countCommentsByCourseId(courseId);
+        int lessons = lessonRepository.countLessonsByCourseId(courseId);
+        return course.courseInfo(subscribed, reviews, lessons);
     }
 }

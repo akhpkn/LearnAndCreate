@@ -55,7 +55,8 @@ public class CommentService {
     public boolean addCommentToCourse(Long courseId, Comment comment){
         Course course = courseRepository.findByCourseId(courseId);
         if( course !=null){
-            course.addComment(comment);
+//            course.addComment(comment);
+            comment.setCourse(course);
             comment.setDate(getDate());
             commentRepository.save(comment);
             return true;

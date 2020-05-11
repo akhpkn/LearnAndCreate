@@ -4,9 +4,7 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.lac.model.*;
 import com.lac.payload.CourseInfo;
 import com.lac.payload.SortName;
-import com.lac.repository.CategoryRepository;
-import com.lac.repository.CourseRepository;
-import com.lac.repository.UserRepository;
+import com.lac.repository.*;
 import com.lac.security.UserPrincipal;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -19,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -30,6 +29,10 @@ public class CoursesService {
 
     private final CategoryRepository categoryRepository;
 
+    private final CommentRepository commentRepository;
+
+    private final LessonRepository lessonRepository;
+
     private final AmazonS3 awsS3Client;
 
     @Value("${jsa.s3.bucket}")
@@ -40,20 +43,24 @@ public class CoursesService {
     private static final Logger logger = LoggerFactory.getLogger(CoursesService.class);
 
     public List<CourseInfo> getAllCourses(UserPrincipal currentUser) {
-        List<Course> courseList = courseRepository.findAll();
+        List<Course> courseList = courseRepository.findAllCourses();
         return getCourseInfos(currentUser, courseList);
     }
 
     public List<Course> getAllCourses() {
-        return courseRepository.findAll();
+        return courseRepository.findAllCourses();
     }
 
     public List<CourseInfo> getCoursesByUser(UserPrincipal currentUser) {
         User user = userRepository.findByUserId(currentUser.getUserId());
-        List<Course> courseList = user.getCourses();
+        Set<Course> courseList = user.getCourses();
+
         List<CourseInfo> courses = new ArrayList<>();
-        for (Course course : courseList)
-            courses.add(course.courseInfo(true));
+        for (Course course : courseList) {
+            List<Comment> comments = commentRepository.findAllByCourse(course);
+            List<Lesson> lessons = lessonRepository.findAllByCourse(course);
+            courses.add(course.courseInfo(true, comments.size(), lessons.size()));
+        }
         return courses;
     }
 
@@ -159,7 +166,9 @@ public class CoursesService {
                 subscribed = user.getCourses().contains(course);
             }
             if (!subscribed) {
-                CourseInfo info = course.courseInfo(false);
+                List<Comment> comments = commentRepository.findAllByCourse(course);
+                List<Lesson> lessons = lessonRepository.findAllByCourse(course);
+                CourseInfo info = course.courseInfo(false, comments.size(), lessons.size());
                 courses.add(info);
                 counter++;
                 if (counter == 5)
@@ -188,8 +197,8 @@ public class CoursesService {
 
         Image image = course.getImage();
         removeContent(image);
-
-        for (Lesson l : course.getLessons())
+        List<Lesson> lessons = lessonRepository.findAllByCourse(course);
+        for (Lesson l : lessons)
             removeContent(l.getVideo());
         courseRepository.delete(course);
 
@@ -211,7 +220,11 @@ public class CoursesService {
                 User user = userRepository.findByUserId(currentUser.getUserId());
                 subscribed = user.getCourses().contains(course);
             }
-            CourseInfo info = course.courseInfo(subscribed);
+//            List<Comment> reviews = commentRepository.findAllByCourse(course);
+//            List<Lesson> lessons = lessonRepository.findAllByCourse(course);
+            int reviews = commentRepository.countCommentsByCourse(course);
+            int lessons = lessonRepository.countLessonsByCourse(course);
+            CourseInfo info = course.courseInfo(subscribed, reviews, lessons);
             courses.add(info);
         }
         return courses;

@@ -73,7 +73,7 @@ public class CourseController {
     @GetMapping("{courseId}/reviews")
     public ResponseEntity<List<CommentInfo>> getAllCourseReviews(@PathVariable("courseId") Long courseId) {
         List<CommentInfo> reviews = courseService.getAllReviewsByCourseId(courseId);
-        reviews.sort(Comparator.comparingLong(CommentInfo::getCommentId).reversed());
+//        reviews.sort(Comparator.comparingLong(CommentInfo::getCommentId).reversed());
         return new ResponseEntity<>(reviews, HttpStatus.OK);
     }
 
@@ -165,7 +165,7 @@ public class CourseController {
     public ResponseEntity<List<LessonInfo>> getLessons(@PathVariable("courseId") Long courseId,
                                                        @CurrentUser UserPrincipal currentUser) {
         List<LessonInfo> lessons = courseService.getAllLessons(courseId, currentUser);
-        lessons.sort(Comparator.comparingLong(LessonInfo::getLessonId));
+//        lessons.sort(Comparator.comparingLong(LessonInfo::getLessonId));
         return new ResponseEntity<>(lessons, HttpStatus.OK);
     }
 
@@ -204,16 +204,17 @@ public class CourseController {
     @GetMapping("{courseId}/info")
     public ResponseEntity<?> getCourseInfo(@CurrentUser UserPrincipal currentUser,
                                            @PathVariable("courseId") Long courseId) {
-        Course course = courseRepository.findByCourseId(courseId);
-        boolean subscribed = false;
-        if (currentUser != null) {
-            User user = userRepository.findByUserId(currentUser.getUserId());
-            subscribed = user.getCourses().contains(course);
-        }
-        if (course == null)
-            return new ResponseEntity<>(new ApiResponse(false, "Курс не существует!"), HttpStatus.BAD_REQUEST);
+//        Course course = courseRepository.findByCourseId(courseId);
+//        boolean subscribed = false;
+//        if (currentUser != null) {
+//            User user = userRepository.findByUserId(currentUser.getUserId());
+//            subscribed = user.getCourses().contains(course);
+//        }
+//        if (course == null)
+//            return new ResponseEntity<>(new ApiResponse(false, "course doesn't exist"), HttpStatus.BAD_REQUEST);
 
-        CourseInfo info = course.courseInfo(subscribed);
+//        CourseInfo info = course.courseInfo(subscribed);
+        CourseInfo info = courseService.getCourseInfo(currentUser, courseId);
         return new ResponseEntity<>(info, HttpStatus.OK);
     }
 }

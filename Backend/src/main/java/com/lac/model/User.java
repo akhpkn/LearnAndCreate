@@ -53,9 +53,7 @@ public class User {
     private String password;
 
     @OneToOne
-    @JoinTable(name = "user_image",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "file_id"))
+    @JoinColumn(name = "image_id")
     private Image image;
 
     @ManyToMany(fetch = FetchType.LAZY)
@@ -69,19 +67,7 @@ public class User {
     @JoinTable(name = "user_courses",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "course_id"))
-    private List<Course> courses = new ArrayList<>();
-
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinTable(name = "user_confirmation",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "confirmation_id"))
-    private EmailConfirmation emailConfirmation;
-
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinTable(name = "user_progress",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "progress_id"))
-    private Progress progress;
+    private Set<Course> courses = new HashSet<>();
 
     public User(String name, String surname, String username, String email, String password) {
         this.name = name;
@@ -93,10 +79,12 @@ public class User {
 
     public void subscribe(Course course) {
         courses.add(course);
+        course.getUsers().add(this);
     }
 
     public void unsubscribe(Course course) {
         courses.remove(course);
+        course.getUsers().remove(this);
     }
 
     public UserInfo userInfo() {
