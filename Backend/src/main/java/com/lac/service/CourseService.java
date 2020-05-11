@@ -181,9 +181,10 @@ public class CourseService {
             User user = userRepository.findByUserId(currentUser.getUserId());
             subscribed = user.getCourses().contains(course);
         }
-        List<Comment> comments = commentRepository.findAllByCourse(course);
-        List<Lesson> lessons = lessonRepository.findAllByCourse(course);
-
-        return course.courseInfo(subscribed, comments.size(), lessons.size());
+//        List<Comment> comments = commentRepository.findAllByCourse(course);
+//        List<Lesson> lessons = lessonRepository.findAllByCourse(course);
+        int reviews = commentRepository.countCommentsByCourseId(courseId);
+        int lessons = lessonRepository.countLessonsByCourseId(courseId);
+        return course.courseInfo(subscribed, reviews, lessons);
     }
 }
