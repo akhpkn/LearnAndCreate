@@ -35,6 +35,10 @@ public class User {
     private String name;
 
     @NotBlank
+    @Size(max = 20)
+    private String surname;
+
+    @NotBlank
     @NaturalId(mutable = true)
     @Size(min = 4, max = 15)
     private String username;
@@ -79,8 +83,9 @@ public class User {
             inverseJoinColumns = @JoinColumn(name = "progress_id"))
     private Progress progress;
 
-    public User(String name, String username, String email, String password) {
+    public User(String name, String surname, String username, String email, String password) {
         this.name = name;
+        this.surname = surname;
         this.username = username;
         this.email = email;
         this.password = password;
