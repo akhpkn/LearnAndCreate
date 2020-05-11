@@ -1,19 +1,21 @@
 package com.lac.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lac.model.Image;
 import com.lac.model.Role;
 import com.lac.model.RoleName;
 import com.lac.model.User;
-import com.lac.payload.ApiResponse;
-import com.lac.payload.JwtAuthenticationResponse;
-import com.lac.payload.LoginRequest;
-import com.lac.payload.SignUpRequest;
+import com.lac.payload.*;
 import com.lac.repository.FileRepository;
 import com.lac.repository.RoleRepository;
 import com.lac.repository.UserRepository;
 import com.lac.security.JwtTokenProvider;
 import com.lac.service.EmailService;
+import com.squareup.okhttp.OkHttpClient;
+import com.squareup.okhttp.Request;
+import com.squareup.okhttp.Response;
 import lombok.AllArgsConstructor;
+import org.apache.http.protocol.HTTP;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -27,6 +29,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.validation.Valid;
+import java.io.IOException;
 import java.net.URI;
 import java.util.Collections;
 
@@ -63,6 +66,66 @@ public class AuthController {
         String jwt = tokenProvider.generateToken(authentication);
         HttpHeaders headers = new HttpHeaders();
         return ResponseEntity.ok(new JwtAuthenticationResponse(jwt));
+    }
+
+    @PostMapping("/vk/signin")
+    public ResponseEntity<?> authenticateVkUser(@Valid @RequestBody VkLoginRequest request) throws IOException {
+        String jwt = "";
+        OkHttpClient client = new OkHttpClient();
+        Request vkRequest = new Request.Builder()
+                .url("https://api.vk.com/method/users.get?user_ids=" + request.getId()
+                        + "&fields=photo_50,domain&access_token=" + request.getToken() + "&v=5.103")
+                .method("GET", null)
+                .addHeader("Authorization", request.getToken())
+                .addHeader("Content-Type", "jsonp")
+                .build();
+        Response response = client.newCall(vkRequest).execute();
+
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        VkResponse vkResponse = objectMapper.readValue(response.body().string(), VkResponse.class);
+
+        VkUser user = vkResponse.response[0];
+        if(userRepository.existsByUsername(user.getDomain())) {
+
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            user.getDomain(),
+                            user.getDomain()
+                    )
+            );
+
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+
+            jwt = tokenProvider.generateToken(authentication);
+
+        }
+        else{
+            User newUser = new User(user.getFirst_name(), user.getLast_name(),
+                    user.getDomain(), "default@mail.ru", user.getDomain());
+
+            Role userRole = roleRepository.findByName(RoleName.ROLE_USER);
+
+            if (userRole == null)
+                throw new RuntimeException("User Role not set");
+            newUser.setRoles(Collections.singleton(userRole));
+
+            newUser.setPassword(passwordEncoder.encode(newUser.getPassword()));
+
+            User result = userRepository.save(newUser);
+
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            user.getDomain(),
+                            user.getDomain()
+                    )
+            );
+
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+
+            jwt = tokenProvider.generateToken(authentication);
+        }
+        return new ResponseEntity<>( jwt, HttpStatus.OK);
     }
 
     @PostMapping("/signup")
