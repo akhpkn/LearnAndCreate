@@ -33,10 +33,10 @@ public class Lesson {
     @Size(max = 10000)
     private String description;
 
-   @NotBlank
-   private String duration;
+    @NotBlank
+    private String duration;
 
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "video_id")
     private Video video;
 
