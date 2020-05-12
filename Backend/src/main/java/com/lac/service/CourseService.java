@@ -1,10 +1,11 @@
 package com.lac.service;
 
+import com.lac.dto.mapper.EntityToDtoMapper;
 import com.lac.model.*;
-import com.lac.payload.CommentInfo;
-import com.lac.payload.CourseInfo;
+import com.lac.dto.CommentDto;
+import com.lac.dto.CoursePageDto;
 import com.lac.payload.FeedbackRequest;
-import com.lac.payload.LessonInfo;
+import com.lac.dto.LessonDto;
 import com.lac.repository.*;
 import com.lac.security.UserPrincipal;
 import lombok.AllArgsConstructor;
@@ -26,6 +27,8 @@ public class CourseService {
     private final ProgressRepository progressRepository;
 
     private final UserRepository userRepository;
+
+    private final EntityToDtoMapper entityToDtoMapper = new EntityToDtoMapper();
 
     public boolean addMark(Integer mark, Long courseId){
         Course course = courseRepository.findByCourseId(courseId);
@@ -99,11 +102,13 @@ public class CourseService {
 //        return new ArrayList<>(course.getComments());
     }
 
-    public List<CommentInfo> getAllReviewsByCourseId(Long courseId) {
+    public List<CommentDto> getAllReviewsByCourseId(Long courseId) {
         List<Comment> comments = commentRepository.findAllByCourseId(courseId);
-        List<CommentInfo> reviews = new ArrayList<>();
-        for (Comment review : comments)
-            reviews.add(review.commentInfo());
+        List<CommentDto> reviews = new ArrayList<>();
+        for (Comment review : comments) {
+            CommentDto dto = entityToDtoMapper.commentToDto(review);
+            reviews.add(dto);
+        }
         return reviews;
     }
 
@@ -125,15 +130,17 @@ public class CourseService {
         return lessonRepository.findAllByCourseId(courseId);
     }
 
-    public List<LessonInfo> getAllLessons(Long courseId, UserPrincipal currentUser) {
+    public List<LessonDto> getAllLessons(Long courseId, UserPrincipal currentUser) {
         List<Lesson> lessons = lessonRepository.findAllByCourseId(courseId);
         Progress userProgress = progressRepository.findByUserId(currentUser.getUserId());
 
-        List<LessonInfo> infos = new ArrayList<>();
+        List<LessonDto> infos = new ArrayList<>();
         for (Lesson lesson : lessons) {
+            LessonDto dto;
             if (userProgress == null || !userProgress.getLessons().contains(lesson))
-                infos.add(lesson.lessonInfo(false));
-            else infos.add(lesson.lessonInfo(true));
+                dto = entityToDtoMapper.lessonToDto(lesson, false);
+            else dto = entityToDtoMapper.lessonToDto(lesson, true);
+            infos.add(dto);
         }
         return infos;
     }
@@ -174,7 +181,7 @@ public class CourseService {
 //        return null;
     }
 
-    public CourseInfo getCourseInfo(UserPrincipal currentUser, Long courseId) {
+    public CoursePageDto getCourseInfo(UserPrincipal currentUser, Long courseId) {
         Course course = courseRepository.findByCourseId(courseId);
         boolean subscribed = false;
         if (currentUser != null) {
@@ -185,6 +192,6 @@ public class CourseService {
 //        List<Lesson> lessons = lessonRepository.findAllByCourse(course);
         int reviews = commentRepository.countCommentsByCourseId(courseId);
         int lessons = lessonRepository.countLessonsByCourseId(courseId);
-        return course.courseInfo(subscribed, reviews, lessons);
+        return entityToDtoMapper.courseToPageDto(course, subscribed, reviews, lessons);
     }
 }

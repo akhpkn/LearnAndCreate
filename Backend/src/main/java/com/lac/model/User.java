@@ -1,7 +1,7 @@
 package com.lac.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.lac.payload.UserInfo;
+import com.lac.dto.UserDto;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -11,9 +11,7 @@ import javax.persistence.*;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -85,16 +83,5 @@ public class User {
     public void unsubscribe(Course course) {
         courses.remove(course);
         course.getUsers().remove(this);
-    }
-
-    public UserInfo userInfo() {
-        return UserInfo.builder()
-                .email(email)
-                .imageUrl(image == null ? "url" : image.getUrl())
-                .name(name)
-                .subscriptions(courses.size())
-                .userId(userId)
-                .username(username)
-                .build();
     }
 }

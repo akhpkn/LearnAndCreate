@@ -6,7 +6,7 @@ import com.lac.model.User;
 import com.lac.payload.ApiResponse;
 import com.lac.payload.PasswordRequest;
 import com.lac.payload.UploadFileResponse;
-import com.lac.payload.UserInfo;
+import com.lac.dto.UserDto;
 import com.lac.repository.EmailConfirmationRepository;
 import com.lac.repository.UserRepository;
 import com.lac.security.CurrentUser;
@@ -49,12 +49,12 @@ public class UserController {
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
-    @GetMapping("/user/me/info")
+    @GetMapping("/user/me/dto")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<UserInfo> getCurrentUserInfo(@CurrentUser UserPrincipal currentUser) {
+    public ResponseEntity<UserDto> getCurrentUserInfo(@CurrentUser UserPrincipal currentUser) {
         User user = userRepository.findByUserId(currentUser.getUserId());
-        UserInfo info = user.userInfo();
-        return new ResponseEntity<>(info, HttpStatus.OK);
+        UserDto dto = userService.getUserDto(user);
+        return new ResponseEntity<>(dto, HttpStatus.OK);
     }
 
     @GetMapping("/user/checkUsernameAvailability")

@@ -48,6 +48,6 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
     @Query("select c from Course c order by size(c.users) desc ")
     List<Course> findTopPopularCourses();
 
-    @Query("select c from Course c order by c.courseId")
+    @Query("select c from Course c order by size(c.users) desc")
     List<Course> findAllCourses();
 }

@@ -1,5 +1,7 @@
 package com.lac.service;
 
+import com.lac.dto.UserDto;
+import com.lac.dto.mapper.EntityToDtoMapper;
 import com.lac.model.User;
 import com.lac.payload.ApiResponse;
 import com.lac.repository.UserRepository;
@@ -21,6 +23,8 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
 
     private final AuthenticationManager authenticationManager;
+
+    private final EntityToDtoMapper entityToDtoMapper = new EntityToDtoMapper();
 
     public boolean editUsername(UserPrincipal currentUser, String username){
         if (username.length() > 15 || username.length() < 4)
@@ -64,5 +68,9 @@ public class UserService {
         userRepository.save(user);
 
         return new ApiResponse(true, "The password was edited");
+    }
+
+    public UserDto getUserDto(User user) {
+        return entityToDtoMapper.userToDto(user);
     }
 }

@@ -1,6 +1,9 @@
 package com.lac.controller;
 
 
+import com.lac.dto.CommentDto;
+import com.lac.dto.CoursePageDto;
+import com.lac.dto.LessonDto;
 import com.lac.model.*;
 import com.lac.payload.*;
 import com.lac.repository.CommentRepository;
@@ -71,8 +74,8 @@ public class CourseController {
     }
 
     @GetMapping("{courseId}/reviews")
-    public ResponseEntity<List<CommentInfo>> getAllCourseReviews(@PathVariable("courseId") Long courseId) {
-        List<CommentInfo> reviews = courseService.getAllReviewsByCourseId(courseId);
+    public ResponseEntity<List<CommentDto>> getAllCourseReviews(@PathVariable("courseId") Long courseId) {
+        List<CommentDto> reviews = courseService.getAllReviewsByCourseId(courseId);
 //        reviews.sort(Comparator.comparingLong(CommentInfo::getCommentId).reversed());
         return new ResponseEntity<>(reviews, HttpStatus.OK);
     }
@@ -162,9 +165,9 @@ public class CourseController {
 
     @GetMapping("/{courseId}/lessons")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<List<LessonInfo>> getLessons(@PathVariable("courseId") Long courseId,
-                                                       @CurrentUser UserPrincipal currentUser) {
-        List<LessonInfo> lessons = courseService.getAllLessons(courseId, currentUser);
+    public ResponseEntity<List<LessonDto>> getLessons(@PathVariable("courseId") Long courseId,
+                                                      @CurrentUser UserPrincipal currentUser) {
+        List<LessonDto> lessons = courseService.getAllLessons(courseId, currentUser);
 //        lessons.sort(Comparator.comparingLong(LessonInfo::getLessonId));
         return new ResponseEntity<>(lessons, HttpStatus.OK);
     }
@@ -201,7 +204,7 @@ public class CourseController {
         return new UploadFileResponse(video.getUrl(), video.getType(), file.getSize());
     }
 
-    @GetMapping("{courseId}/info")
+    @GetMapping("{courseId}/dto")
     public ResponseEntity<?> getCourseInfo(@CurrentUser UserPrincipal currentUser,
                                            @PathVariable("courseId") Long courseId) {
 //        Course course = courseRepository.findByCourseId(courseId);
@@ -214,7 +217,7 @@ public class CourseController {
 //            return new ResponseEntity<>(new ApiResponse(false, "course doesn't exist"), HttpStatus.BAD_REQUEST);
 
 //        CourseInfo info = course.courseInfo(subscribed);
-        CourseInfo info = courseService.getCourseInfo(currentUser, courseId);
+        CoursePageDto info = courseService.getCourseInfo(currentUser, courseId);
         return new ResponseEntity<>(info, HttpStatus.OK);
     }
 }
