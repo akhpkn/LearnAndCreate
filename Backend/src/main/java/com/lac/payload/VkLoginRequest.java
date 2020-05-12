@@ -13,4 +13,6 @@ public class VkLoginRequest {
     String id;
 
     String token;
+
+    String email;
 }

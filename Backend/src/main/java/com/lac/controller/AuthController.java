@@ -88,6 +88,11 @@ public class AuthController {
         VkUser user = vkResponse.response[0];
         if(userRepository.existsByUsername(user.getDomain())) {
 
+            User noVkUser = userRepository.findByUsername(user.getDomain());
+            if(noVkUser.getPassword() != passwordEncoder.encode(user.getDomain())){
+                return new ResponseEntity<>(new ApiResponse(false, "Пользователь с таким именем уже сущесвует!"),
+                        HttpStatus.BAD_REQUEST);
+            }
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
                             user.getDomain(),
@@ -101,8 +106,13 @@ public class AuthController {
 
         }
         else{
+            if (userRepository.existsByEmail(request.getEmail())) {
+                return new ResponseEntity<>(new ApiResponse(false, "Такой email уже привзяан к другому аккаунту!"),
+                        HttpStatus.BAD_REQUEST);
+            }
+
             User newUser = new User(user.getFirst_name(), user.getLast_name(),
-                    user.getDomain(), "default@mail.ru", user.getDomain());
+                    user.getDomain(), request.getEmail() == null ? "default@mail.ru" : request.getEmail(), user.getDomain());
 
             Role userRole = roleRepository.findByName(RoleName.ROLE_USER);
 
@@ -125,7 +135,7 @@ public class AuthController {
 
             jwt = tokenProvider.generateToken(authentication);
         }
-        return new ResponseEntity<>( jwt, HttpStatus.OK);
+        return ResponseEntity.ok(new JwtAuthenticationResponse(jwt));
     }
 
     @PostMapping("/signup")
