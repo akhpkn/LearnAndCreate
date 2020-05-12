@@ -112,7 +112,7 @@ public class AuthController {
             }
 
             User newUser = new User(user.getFirst_name(), user.getLast_name(),
-                    user.getDomain(), request.getEmail() == null ? "default@mail.ru" : request.getEmail(), user.getDomain());
+                    user.getDomain(), (request.getEmail() == "" || request.getEmail() == null )? "default@mail.ru" : request.getEmail(), user.getDomain());
 
             Role userRole = roleRepository.findByName(RoleName.ROLE_USER);
 
