@@ -1,8 +1,10 @@
 package com.lac.service;
 
 import com.amazonaws.services.s3.AmazonS3;
+import com.lac.dto.CourseDto;
+import com.lac.dto.mapper.EntityToDtoMapper;
 import com.lac.model.*;
-import com.lac.payload.CourseInfo;
+import com.lac.dto.CoursePageDto;
 import com.lac.payload.SortName;
 import com.lac.repository.*;
 import com.lac.security.UserPrincipal;
@@ -40,49 +42,54 @@ public class CoursesService {
 
     private static final String ENDPOINT_URL = "https://lacbucket.s3.eu-west-2.amazonaws.com";
 
+    private final EntityToDtoMapper entityToDtoMapper = new EntityToDtoMapper();
+
     private static final Logger logger = LoggerFactory.getLogger(CoursesService.class);
 
-    public List<CourseInfo> getAllCourses(UserPrincipal currentUser) {
+//    public List<CoursePageDto> getAllCourses(UserPrincipal currentUser) {
+//        List<Course> courseList = courseRepository.findAllCourses();
+//        return getCourseInfos(currentUser, courseList);
+//    }
+
+    public List<CourseDto> getCourses() {
         List<Course> courseList = courseRepository.findAllCourses();
-        return getCourseInfos(currentUser, courseList);
+        return getCourseDtos(courseList);
     }
 
     public List<Course> getAllCourses() {
         return courseRepository.findAllCourses();
     }
 
-    public List<CourseInfo> getCoursesByUser(UserPrincipal currentUser) {
+    public List<CourseDto> getCoursesByUser(UserPrincipal currentUser) {
         User user = userRepository.findByUserId(currentUser.getUserId());
         Set<Course> courseList = user.getCourses();
 
-        List<CourseInfo> courses = new ArrayList<>();
+        List<CourseDto> courses = new ArrayList<>();
         for (Course course : courseList) {
-            List<Comment> comments = commentRepository.findAllByCourse(course);
-            List<Lesson> lessons = lessonRepository.findAllByCourse(course);
-            courses.add(course.courseInfo(true, comments.size(), lessons.size()));
+            CourseDto dto = entityToDtoMapper.courseToDto(course);
+            courses.add(dto);
         }
         return courses;
     }
 
-    public List<CourseInfo> getFilteredCourses(Long categoryId, String substring, Integer sortId,
-                                               UserPrincipal currentUser) {
-        List<CourseInfo> courses;
+    public List<CourseDto> getFilteredCourses(Long categoryId, String substring, Integer sortId) {
+        List<CourseDto> courses;
 
         if (categoryId == null && substring.isEmpty())
-            courses = getAllCourses(currentUser);
+            courses = getCourses();
         else if (categoryId == null)
-            courses = getCoursesByTitleSubstringAndSorted(substring, sortId, currentUser);
+            courses = getCoursesByTitleSubstringAndSorted(substring, sortId);
         else if (substring.isEmpty())
-            courses = getCoursesByCategoryAndSorted(categoryId, sortId, currentUser);
-        else courses = getCoursesByCategoryAndTitleAndSorted(categoryId, substring, sortId, currentUser);
+            courses = getCoursesByCategoryAndSorted(categoryId, sortId);
+        else courses = getCoursesByCategoryAndTitleAndSorted(categoryId, substring, sortId);
 
         return courses;
     }
 
-    public List<CourseInfo> getCoursesByCategory(Long categoryId, UserPrincipal currentUser) {
+    public List<CourseDto> getCoursesDtoByCategory(Long categoryId) {
         Category category = categoryRepository.findByCategoryId(categoryId);
         List<Course> courseList = courseRepository.findAllByCategory(category);
-        return getCourseInfos(currentUser, courseList);
+        return getCourseDtos(courseList);
     }
 
     public List<Course> getCoursesByCategory(Long categoryId) {
@@ -90,8 +97,7 @@ public class CoursesService {
         return courseRepository.findAllByCategory(category);
     }
 
-    public List<CourseInfo> getCoursesByCategoryAndSorted(Long categoryId, Integer sortId,
-                                                          UserPrincipal currentUser) {
+    public List<CourseDto> getCoursesByCategoryAndSorted(Long categoryId, Integer sortId) {
         Category category = categoryRepository.findByCategoryId(categoryId);
         List<Course> courseList;
 
@@ -106,20 +112,19 @@ public class CoursesService {
         }
         else courseList = courseRepository.findAllByCategory(category);
 
-        return getCourseInfos(currentUser, courseList);
+        return getCourseDtos(courseList);
     }
 
-    public List<CourseInfo> getCoursesByTitleSubstring(String substring, UserPrincipal currentUser) {
+    public List<CourseDto> getCoursesDtoByTitleSubstring(String substring) {
         List<Course> courseList = courseRepository.findAllByTitleContaining(substring);
-        return getCourseInfos(currentUser, courseList);
+        return getCourseDtos(courseList);
     }
 
     public List<Course> getCoursesByTitleSubstring(String substring) {
         return courseRepository.findAllByTitleContaining(substring);
     }
 
-    public List<CourseInfo> getCoursesByTitleSubstringAndSorted(String substring, Integer sortId,
-                                                                UserPrincipal currentUser ) {
+    public List<CourseDto> getCoursesByTitleSubstringAndSorted(String substring, Integer sortId) {
         List<Course> courseList;
 
         if (sortId != null) {
@@ -134,11 +139,11 @@ public class CoursesService {
         }
         else courseList = courseRepository.findAllByTitleContaining(substring);
 
-        return getCourseInfos(currentUser, courseList);
+        return getCourseDtos(courseList);
     }
 
-    public List<CourseInfo> getCoursesByCategoryAndTitleAndSorted(Long categoryId, String substring,
-                                                                  Integer sortId, UserPrincipal currentUser) {
+    public List<CourseDto> getCoursesByCategoryAndTitleAndSorted(Long categoryId, String substring,
+                                                                     Integer sortId) {
         Category category = categoryRepository.findByCategoryId(categoryId);
         List<Course> courseList;
 
@@ -152,28 +157,29 @@ public class CoursesService {
         }
         else courseList = courseRepository.findAllByCategoryAndTitleContaining(category, substring);
 
-        return getCourseInfos(currentUser, courseList);
+        return getCourseDtos(courseList);
     }
 
-    public List<CourseInfo> getTopCourses(UserPrincipal currentUser) {
-        List<CourseInfo> courses = new ArrayList<>();
+    public List<CourseDto> getTopCoursesDto() {
+        List<CourseDto> courses = new ArrayList<>();
         List<Course> courseList = courseRepository.findTopPopularCourses();
         int counter = 0;
         for (Course course : courseList) {
-            boolean subscribed = false;
-            if (currentUser != null) {
-                User user = userRepository.findByUserId(currentUser.getUserId());
-                subscribed = user.getCourses().contains(course);
-            }
-            if (!subscribed) {
-                List<Comment> comments = commentRepository.findAllByCourse(course);
-                List<Lesson> lessons = lessonRepository.findAllByCourse(course);
-                CourseInfo info = course.courseInfo(false, comments.size(), lessons.size());
-                courses.add(info);
+//            boolean subscribed = false;
+//            if (currentUser != null) {
+//                User user = userRepository.findByUserId(currentUser.getUserId());
+//                subscribed = user.getCourses().contains(course);
+//            }
+//            if (!subscribed) {
+//                List<Comment> comments = commentRepository.findAllByCourse(course);
+//                List<Lesson> lessons = lessonRepository.findAllByCourse(course);
+//                CoursePageDto info = course.courseInfo(false, comments.size(), lessons.size());
+                CourseDto dto = entityToDtoMapper.courseToDto(course);
+                courses.add(dto);
                 counter++;
                 if (counter == 5)
                     break;
-            }
+//            }
         }
         return courses;
     }
@@ -212,20 +218,35 @@ public class CoursesService {
         }
     }
 
-    private List<CourseInfo> getCourseInfos(UserPrincipal currentUser, List<Course> courseList) {
-        List<CourseInfo> courses = new ArrayList<>();
+//    private List<CoursePageDto> getCourseInfos(UserPrincipal currentUser, List<Course> courseList) {
+//        List<CoursePageDto> courses = new ArrayList<>();
+//        for (Course course : courseList) {
+//            boolean subscribed = false;
+//            if (currentUser != null) {
+//                User user = userRepository.findByUserId(currentUser.getUserId());
+//                subscribed = user.getCourses().contains(course);
+//            }
+////            List<Comment> reviews = commentRepository.findAllByCourse(course);
+////            List<Lesson> lessons = lessonRepository.findAllByCourse(course);
+////            long courseId = course.getCourseId();
+//            int reviews = commentRepository.countCommentsByCourse(course);
+//            int lessons = lessonRepository.countLessonsByCourse(course);
+//            CoursePageDto info = course.courseInfo(subscribed, reviews, lessons);
+//            courses.add(info);
+//        }
+//        return courses;
+//    }
+
+    private List<CourseDto> getCourseDtos(List<Course> courseList) {
+        List<CourseDto> courses = new ArrayList<>();
         for (Course course : courseList) {
-            boolean subscribed = false;
-            if (currentUser != null) {
-                User user = userRepository.findByUserId(currentUser.getUserId());
-                subscribed = user.getCourses().contains(course);
-            }
-//            List<Comment> reviews = commentRepository.findAllByCourse(course);
-//            List<Lesson> lessons = lessonRepository.findAllByCourse(course);
-            int reviews = commentRepository.countCommentsByCourse(course);
-            int lessons = lessonRepository.countLessonsByCourse(course);
-            CourseInfo info = course.courseInfo(subscribed, reviews, lessons);
-            courses.add(info);
+//            boolean subscribed = false;
+//            if (currentUser != null) {
+//                User user = userRepository.findByUserId(currentUser.getUserId());
+////                subscribed = user.getCourses().contains(course);
+//            }
+            CourseDto courseDto = entityToDtoMapper.courseToDto(course);
+            courses.add(courseDto);
         }
         return courses;
     }

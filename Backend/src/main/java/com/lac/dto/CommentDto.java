@@ -1,11 +1,11 @@
-package com.lac.payload;
+package com.lac.dto;
 
 import lombok.Builder;
 import lombok.Getter;
 
 @Builder
 @Getter
-public class CommentInfo {
+public class CommentDto {
 
     private final long commentId;
     private final String text;
@@ -15,5 +15,6 @@ public class CommentInfo {
     private final long userId;
     private final String userUsername;
     private final String userName;
+    private final String userSurname;
     private final String userImageUrl;
 }

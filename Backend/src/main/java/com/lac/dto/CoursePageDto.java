@@ -1,4 +1,4 @@
-package com.lac.payload;
+package com.lac.dto;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -6,7 +6,7 @@ import lombok.Setter;
 
 @Builder
 @Getter
-public class CourseInfo {
+public class CoursePageDto {
 
     private final long courseId;
     private final String title;

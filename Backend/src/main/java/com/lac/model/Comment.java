@@ -1,7 +1,7 @@
 package com.lac.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.lac.payload.CommentInfo;
+import com.lac.dto.CommentDto;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -13,7 +13,6 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
-import java.util.TimeZone;
 
 @Table(name = "comments")
 @Entity
@@ -56,18 +55,5 @@ public class Comment {
         date = String.format(day + " " + months[month] + " " + year);
         this.text = text;
         this.mark = mark;
-    }
-
-    public CommentInfo commentInfo() {
-        return CommentInfo.builder()
-                .commentId(commentId)
-                .date(date)
-                .mark(mark)
-                .text(text)
-                .userId(user.getUserId())
-                .userImageUrl(user.getImage() == null ? "url" : user.getImage().getUrl())
-                .userName(user.getName())
-                .userUsername(user.getUsername())
-                .build();
     }
 }

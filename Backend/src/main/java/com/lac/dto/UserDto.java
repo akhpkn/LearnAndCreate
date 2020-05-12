@@ -1,11 +1,11 @@
-package com.lac.payload;
+package com.lac.dto;
 
 import lombok.Builder;
 import lombok.Getter;
 
 @Builder
 @Getter
-public class UserInfo {
+public class UserDto {
 
     private final long userId;
 
