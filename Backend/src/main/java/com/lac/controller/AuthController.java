@@ -89,7 +89,9 @@ public class AuthController {
         if(userRepository.existsByUsername(user.getDomain())) {
 
             User noVkUser = userRepository.findByUsername(user.getDomain());
-            if(noVkUser.getPassword() != passwordEncoder.encode(user.getDomain())){
+            String estimated = noVkUser.getPassword();
+            String real = passwordEncoder.encode(user.getDomain());
+            if(noVkUser.getRegistrationType() != RegistrationType.VK){
                 return new ResponseEntity<>(new ApiResponse(false, "Пользователь с таким именем уже сущесвует!"),
                         HttpStatus.BAD_REQUEST);
             }
@@ -112,7 +114,8 @@ public class AuthController {
             }
 
             User newUser = new User(user.getFirst_name(), user.getLast_name(),
-                    user.getDomain(), (request.getEmail() == "" || request.getEmail() == null )? "default@mail.ru" : request.getEmail(), user.getDomain());
+                    user.getDomain(), (request.getEmail() == "" || request.getEmail() == null )? "default@mail.ru" : request.getEmail(),
+                    user.getDomain(),RegistrationType.VK);
 
             Role userRole = roleRepository.findByName(RoleName.ROLE_USER);
 
@@ -149,7 +152,7 @@ public class AuthController {
                     HttpStatus.BAD_REQUEST);
         }
 
-        User user = new User(request.getName(), request.getSurname(), request.getUsername(), request.getEmail(), request.getPassword());
+        User user = new User(request.getName(), request.getSurname(), request.getUsername(), request.getEmail(), request.getPassword(), RegistrationType.DEFAULT);
 
         Role userRole = roleRepository.findByName(RoleName.ROLE_USER);
         if (userRole == null)
