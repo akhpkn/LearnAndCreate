@@ -48,6 +48,7 @@ public class EntityToDtoMapper {
                 .userId(comment.getUser().getUserId())
                 .userImageUrl(comment.getUser().getImage() == null ? "url" : comment.getUser().getImage().getUrl())
                 .userName(comment.getUser().getName())
+                .userSurname(comment.getUser().getSurname())
                 .userUsername(comment.getUser().getUsername())
                 .build();
     }

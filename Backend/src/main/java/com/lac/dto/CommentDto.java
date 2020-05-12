@@ -15,5 +15,6 @@ public class CommentDto {
     private final long userId;
     private final String userUsername;
     private final String userName;
+    private final String userSurname;
     private final String userImageUrl;
 }
