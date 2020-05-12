@@ -1,6 +1,7 @@
 package com.lac.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.lac.payload.RegistrationType;
 import com.lac.payload.UserInfo;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -52,6 +53,8 @@ public class User {
     @Size(max = 100)
     private String password;
 
+    private RegistrationType registrationType;
+
     @OneToOne
     @JoinColumn(name = "image_id")
     private Image image;
@@ -69,12 +72,13 @@ public class User {
             inverseJoinColumns = @JoinColumn(name = "course_id"))
     private Set<Course> courses = new HashSet<>();
 
-    public User(String name, String surname, String username, String email, String password) {
+    public User(String name, String surname, String username, String email, String password, RegistrationType type) {
         this.name = name;
         this.surname = surname;
         this.username = username;
         this.email = email;
         this.password = password;
+        this.registrationType = type;
     }
 
     public void subscribe(Course course) {
