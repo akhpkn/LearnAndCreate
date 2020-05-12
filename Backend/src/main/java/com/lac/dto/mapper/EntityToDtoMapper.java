@@ -18,6 +18,18 @@ public class EntityToDtoMapper {
                 .build();
     }
 
+    public ExtendedCourseDto courseToExtendedDto(Course course) {
+        return ExtendedCourseDto.builder()
+                .courseId(course.getCourseId())
+                .description(course.getDescription())
+                .imageUrl(course.getImage() == null ? "https://lacbucket.s3.eu-west-2.amazonaws.com/resources/avatar/7fbcc95cc521fb563fa9f7ae5ae37736.png" : course.getImage().getUrl())
+                .mark(course.getMark())
+                .marksNumber(course.getNumMarks())
+                .subsNumber(course.getUsers().size())
+                .title(course.getTitle())
+                .build();
+    }
+
     public CoursePageDto courseToPageDto(Course course, boolean subscribed, int reviewsNumber, int lessonsNumber) {
         return CoursePageDto.builder()
                 .courseId(course.getCourseId())

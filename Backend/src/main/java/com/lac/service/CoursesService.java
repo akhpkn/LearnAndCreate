@@ -2,6 +2,7 @@ package com.lac.service;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.lac.dto.CourseDto;
+import com.lac.dto.ExtendedCourseDto;
 import com.lac.dto.mapper.EntityToDtoMapper;
 import com.lac.model.*;
 import com.lac.dto.CoursePageDto;
@@ -97,7 +98,7 @@ public class CoursesService {
         return courseRepository.findAllByCategory(category);
     }
 
-    public List<CourseDto> getCoursesByCategoryAndSorted(Long categoryId, Integer sortId) {
+    private List<CourseDto> getCoursesByCategoryAndSorted(Long categoryId, Integer sortId) {
         Category category = categoryRepository.findByCategoryId(categoryId);
         List<Course> courseList;
 
@@ -115,16 +116,16 @@ public class CoursesService {
         return getCourseDtos(courseList);
     }
 
-    public List<CourseDto> getCoursesDtoByTitleSubstring(String substring) {
+    public List<ExtendedCourseDto> getCoursesDtoByTitleSubstring(String substring) {
         List<Course> courseList = courseRepository.findAllByTitleContaining(substring);
-        return getCourseDtos(courseList);
+        return getExtendedCourseDtos(courseList);
     }
 
     public List<Course> getCoursesByTitleSubstring(String substring) {
         return courseRepository.findAllByTitleContaining(substring);
     }
 
-    public List<CourseDto> getCoursesByTitleSubstringAndSorted(String substring, Integer sortId) {
+    private List<CourseDto> getCoursesByTitleSubstringAndSorted(String substring, Integer sortId) {
         List<Course> courseList;
 
         if (sortId != null) {
@@ -142,8 +143,8 @@ public class CoursesService {
         return getCourseDtos(courseList);
     }
 
-    public List<CourseDto> getCoursesByCategoryAndTitleAndSorted(Long categoryId, String substring,
-                                                                     Integer sortId) {
+    private List<CourseDto> getCoursesByCategoryAndTitleAndSorted(Long categoryId, String substring,
+                                                                  Integer sortId) {
         Category category = categoryRepository.findByCategoryId(categoryId);
         List<Course> courseList;
 
@@ -160,8 +161,8 @@ public class CoursesService {
         return getCourseDtos(courseList);
     }
 
-    public List<CourseDto> getTopCoursesDto() {
-        List<CourseDto> courses = new ArrayList<>();
+    public List<ExtendedCourseDto> getTopCoursesDto() {
+        List<ExtendedCourseDto> courses = new ArrayList<>();
         List<Course> courseList = courseRepository.findTopPopularCourses();
         int counter = 0;
         for (Course course : courseList) {
@@ -174,7 +175,7 @@ public class CoursesService {
 //                List<Comment> comments = commentRepository.findAllByCourse(course);
 //                List<Lesson> lessons = lessonRepository.findAllByCourse(course);
 //                CoursePageDto info = course.courseInfo(false, comments.size(), lessons.size());
-                CourseDto dto = entityToDtoMapper.courseToDto(course);
+                ExtendedCourseDto dto = entityToDtoMapper.courseToExtendedDto(course);
                 courses.add(dto);
                 counter++;
                 if (counter == 5)
@@ -247,6 +248,15 @@ public class CoursesService {
 //            }
             CourseDto courseDto = entityToDtoMapper.courseToDto(course);
             courses.add(courseDto);
+        }
+        return courses;
+    }
+
+    private List<ExtendedCourseDto> getExtendedCourseDtos(List<Course> courseList) {
+        List<ExtendedCourseDto> courses = new ArrayList<>();
+        for (Course course : courseList) {
+            ExtendedCourseDto dto = entityToDtoMapper.courseToExtendedDto(course);
+            courses.add(dto);
         }
         return courses;
     }
