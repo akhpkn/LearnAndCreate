@@ -1,6 +1,7 @@
 package com.lac.controller;
 
 import com.lac.dto.CourseDto;
+import com.lac.dto.ExtendedCourseDto;
 import com.lac.model.Category;
 import com.lac.model.Course;
 import com.lac.model.User;
@@ -149,7 +150,7 @@ public class CoursesController {
 
     @GetMapping("/search/{substring}/dto")
     public ResponseEntity<?> getCoursesBySubstring(@PathVariable("substring") String substring) {
-        List<CourseDto> courses = coursesService.getCoursesDtoByTitleSubstring(substring);
+        List<ExtendedCourseDto> courses = coursesService.getCoursesDtoByTitleSubstring(substring);
         if (courses.isEmpty()) {
             courses = coursesService.getTopCoursesDto();
         }
