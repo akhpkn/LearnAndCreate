@@ -44,6 +44,15 @@ public class UserService {
         return true;
     }
 
+    public boolean editSurname(UserPrincipal currentUser, String surname) {
+        if (surname.length() > 20 || surname.length() < 2)
+            return false;
+        User user = userRepository.findByUserId(currentUser.getUserId());
+        user.setSurname(surname);
+        userRepository.save(user);
+        return true;
+    }
+
     public ApiResponse editPassword(UserPrincipal currentUser, String oldPassword,
                                     String newPassword, String repeatedPassword){
         User user = userRepository.findByUserId(currentUser.getUserId());

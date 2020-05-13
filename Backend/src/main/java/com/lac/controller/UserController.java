@@ -72,10 +72,19 @@ public class UserController {
     @PutMapping("/user/me/edit/name")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> editName(@CurrentUser UserPrincipal currentUser,
-                                         @RequestParam(name = "name") String name) {
+                                      @RequestParam(name = "name") String name) {
         if(userService.editName(currentUser, name))
             return new ResponseEntity<>(new ApiResponse(true, "Имя успешно изменено"), HttpStatus.OK);
         return new ResponseEntity<>(new ApiResponse(false, "Имя не было изменено. Неверное имя"), HttpStatus.BAD_REQUEST);
+    }
+
+    @PutMapping("/user/me/edit/surname")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<?> editSurname(@CurrentUser UserPrincipal currentUser,
+                                         @RequestParam(name = "surname") String surname) {
+        if (userService.editSurname(currentUser, surname))
+            return new ResponseEntity<>(new ApiResponse(true, "Фамилия успешно изменена"), HttpStatus.OK);
+        return new ResponseEntity<>(new ApiResponse(false, "Фамилия должна быть от 2 до 20 символов"), HttpStatus.BAD_REQUEST);
     }
 
     @PutMapping("/user/me/edit/username")
