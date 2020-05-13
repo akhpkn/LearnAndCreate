@@ -16,8 +16,11 @@ import com.lac.service.CoursesService;
 import com.lac.service.ImageService;
 import com.lac.service.VideoService;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.similarity.FuzzyScore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,6 +30,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 @RestController
@@ -148,8 +152,8 @@ public class CoursesController {
         return new ResponseEntity<>(courses, HttpStatus.OK);
     }
 
-    @GetMapping("/search/{substring}/dto")
-    public ResponseEntity<?> getCoursesBySubstring(@PathVariable("substring") String substring) {
+    @GetMapping("/search/dto")
+    public ResponseEntity<?> getCoursesBySubstring(@RequestParam(name = "s") String substring) {
         List<ExtendedCourseDto> courses = coursesService.getCoursesDtoByTitleSubstring(substring);
         if (courses.isEmpty()) {
             courses = coursesService.getTopCoursesDto();

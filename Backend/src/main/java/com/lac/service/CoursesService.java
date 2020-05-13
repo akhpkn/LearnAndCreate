@@ -10,6 +10,8 @@ import com.lac.payload.SortName;
 import com.lac.repository.*;
 import com.lac.security.UserPrincipal;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.similarity.FuzzyScore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,9 +20,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -117,8 +117,10 @@ public class CoursesService {
     }
 
     public List<ExtendedCourseDto> getCoursesDtoByTitleSubstring(String substring) {
-        List<Course> courseList = courseRepository.findAllByTitleContaining(substring);
-        return getExtendedCourseDtos(courseList);
+//        List<Course> courseList = courseRepository.findAllByTitleContaining(substring);
+        List<Course> courseList = courseRepository.findAll();
+        List<Course> courses = fuzzySearch(courseList, substring);
+        return getExtendedCourseDtos(courses);
     }
 
     public List<Course> getCoursesByTitleSubstring(String substring) {
@@ -127,38 +129,41 @@ public class CoursesService {
 
     private List<CourseDto> getCoursesByTitleSubstringAndSorted(String substring, Integer sortId) {
         List<Course> courseList;
+        courseList = courseRepository.findAll();
+        List<Course> courses = fuzzySearch(courseList, substring);
+        sortCourses(courses, sortId);
+//        if (sortId != null) {
+//            SortName sortName = SortName.values()[sortId];
+//
+//
+//            Sort sort = getSort(sortName);
+//
+//            if (sort == null)
+//                courseList = courseRepository.findByTitleContainingAndSortedBySubsNumber(substring);
+//            else courseList = courseRepository.findAllByTitleContaining(substring, sort);
+//        }
+//        else courseList = courseRepository.findAllByTitleContaining(substring);
 
-        if (sortId != null) {
-            SortName sortName = SortName.values()[sortId];
-
-
-            Sort sort = getSort(sortName);
-
-            if (sort == null)
-                courseList = courseRepository.findByTitleContainingAndSortedBySubsNumber(substring);
-            else courseList = courseRepository.findAllByTitleContaining(substring, sort);
-        }
-        else courseList = courseRepository.findAllByTitleContaining(substring);
-
-        return getCourseDtos(courseList);
+        return getCourseDtos(courses);
     }
 
     private List<CourseDto> getCoursesByCategoryAndTitleAndSorted(Long categoryId, String substring,
                                                                   Integer sortId) {
         Category category = categoryRepository.findByCategoryId(categoryId);
-        List<Course> courseList;
+        List<Course> courseList = courseRepository.findAllByCategory(category);
+        List<Course> courses = fuzzySearch(courseList, substring);
+        sortCourses(courses, sortId);
+//        if (sortId != null) {
+//            SortName sortName = SortName.values()[sortId];
+//            Sort sort = getSort(sortName);
+//
+//            if (sort == null)
+//                courseList = courseRepository.findByCategoryAndTitleAndSortedBySubsNumber(category, substring);
+//            else courseList = courseRepository.findAllByCategoryAndTitleContaining(category, substring, sort);
+//        }
+//        else courseList = courseRepository.findAllByCategoryAndTitleContaining(category, substring);
 
-        if (sortId != null) {
-            SortName sortName = SortName.values()[sortId];
-            Sort sort = getSort(sortName);
-
-            if (sort == null)
-                courseList = courseRepository.findByCategoryAndTitleAndSortedBySubsNumber(category, substring);
-            else courseList = courseRepository.findAllByCategoryAndTitleContaining(category, substring, sort);
-        }
-        else courseList = courseRepository.findAllByCategoryAndTitleContaining(category, substring);
-
-        return getCourseDtos(courseList);
+        return getCourseDtos(courses);
     }
 
     public List<ExtendedCourseDto> getTopCoursesDto() {
@@ -277,5 +282,41 @@ public class CoursesService {
                 break;
         }
         return sort;
+    }
+
+    private List<Course> fuzzySearch(List<Course> courseList, String substring) {
+        FuzzyScore score = new FuzzyScore(Locale.ENGLISH);
+        List<Course> courses = new ArrayList<>();
+        Map<Integer, Integer> scores = new HashMap<>();
+
+        for (Course c : courseList) {
+            int similarity = score.fuzzyScore(c.getTitle(), substring);
+            if (similarity > 0) {
+                courses.add(c);
+                scores.put(Objects.hash(c), similarity);
+            }
+        }
+
+        courses.sort(Comparator.comparing(c -> scores.get(Objects.hash(c))).reversed());
+        return courses;
+    }
+
+    private void sortCourses(List<Course> courses, Integer sortId) {
+        if (sortId != null) {
+            SortName sortName = SortName.values()[sortId];
+
+            if (sortName == SortName.RATE) {
+                courses.sort(Comparator.comparing(Course::getMark).reversed());
+            }
+            else if (sortName == SortName.SUBS_NUMBER) {
+                courses.sort(Comparator.comparing(c -> c.getUsers().size()));
+                Collections.reverse(courses);
+            }
+            else {
+                courses.sort(Comparator.comparing(Course::getTitle));
+                if (sortName == SortName.TITLE_DESC)
+                    Collections.reverse(courses);
+            }
+        }
     }
 }
