@@ -11,6 +11,7 @@ import com.lac.repository.RoleRepository;
 import com.lac.repository.UserRepository;
 import com.lac.security.JwtTokenProvider;
 import com.lac.service.EmailService;
+import com.squareup.okhttp.MediaType;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
@@ -69,19 +70,39 @@ public class AuthController {
     }
 
     @PostMapping("/vk/signin")
-    public ResponseEntity<?> authenticateVkUser(@Valid @RequestBody VkLoginRequest request) throws IOException {
+    public ResponseEntity<?> authenticateVkUser(@Valid @RequestBody ClientVkRequest VkRequest) throws IOException {
         String jwt = "";
+        OkHttpClient vk = new OkHttpClient();
+
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        MediaType mediaType = MediaType.parse("text/plain");
+        com.squareup.okhttp.RequestBody body = com.squareup.okhttp.RequestBody.create(mediaType, "");
+
+
+        Request request = new Request.Builder()
+                .url("https://oauth.vk.com/access_token?client_id="+ VkRequest.getClient_id() + "&client_secret=" + VkRequest.getClient_secret()
+                        + "&redirect_uri=" + VkRequest.getRedirect_uri()+ "&code=" + VkRequest.getCode())
+                .method("POST", body)
+                .addHeader("Cookie", "remixlang=0")
+                .build();
+        Response response2 = vk.newCall(request).execute();
+        String b = response2.body().string();
+
+         AccessTokenVkResponse accessTokenVkResponse = objectMapper.readValue(b, AccessTokenVkResponse.class);
+
+
+
         OkHttpClient client = new OkHttpClient();
         Request vkRequest = new Request.Builder()
-                .url("https://api.vk.com/method/users.get?user_ids=" + request.getId()
-                        + "&fields=photo_50,domain&access_token=" + request.getToken() + "&v=5.103")
+                .url("https://api.vk.com/method/users.get?user_ids=" + accessTokenVkResponse.getUser_id()
+                        + "&fields=photo_50,domain&access_token=" + accessTokenVkResponse.getAccess_token() + "&v=5.103")
                 .method("GET", null)
-                .addHeader("Authorization", request.getToken())
+                .addHeader("Authorization", accessTokenVkResponse.getAccess_token() )
                 .addHeader("Content-Type", "jsonp")
                 .build();
         Response response = client.newCall(vkRequest).execute();
 
-        ObjectMapper objectMapper = new ObjectMapper();
 
         VkResponse vkResponse = objectMapper.readValue(response.body().string(), VkResponse.class);
 
@@ -108,13 +129,13 @@ public class AuthController {
 
         }
         else{
-            if (userRepository.existsByEmail(request.getEmail())) {
+            if (userRepository.existsByEmail(accessTokenVkResponse.getEmail())) {
                 return new ResponseEntity<>(new ApiResponse(false, "Такой email уже привзяан к другому аккаунту!"),
                         HttpStatus.BAD_REQUEST);
             }
 
             User newUser = new User(user.getFirst_name(), user.getLast_name(),
-                    user.getDomain(), (request.getEmail() == "" || request.getEmail() == null )? "default@mail.ru" : request.getEmail(),
+                    user.getDomain(), (accessTokenVkResponse.getEmail() == "" || accessTokenVkResponse.getEmail() == null )? "default@mail.ru" : accessTokenVkResponse.getEmail(),
                     user.getDomain(),RegistrationType.VK);
 
             Role userRole = roleRepository.findByName(RoleName.ROLE_USER);
