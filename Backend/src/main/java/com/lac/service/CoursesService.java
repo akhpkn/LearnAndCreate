@@ -198,7 +198,7 @@ public class CoursesService {
         List<Course> courses = new ArrayList<>();
         for (Course course : courseList) {
             List<Lesson> lessons = lessonRepository.findAllByCourse(course);
-                if (!progress.getLessons().containsAll(lessons) || lessons.size() == 0)
+                if (progress == null || !progress.getLessons().containsAll(lessons) || lessons.size() == 0)
                     courses.add(course);
         }
 
@@ -211,11 +211,13 @@ public class CoursesService {
         Progress progress = progressRepository.findByUser(user);
 
         List<Course> courses = new ArrayList<>();
-        for (Course course : courseList) {
-            List<Lesson> lessons = lessonRepository.findAllByCourse(course);
-            if (lessons.size() > 0) {
-                if (progress.getLessons().containsAll(lessons))
-                    courses.add(course);
+        if (progress != null) {
+            for (Course course : courseList) {
+                List<Lesson> lessons = lessonRepository.findAllByCourse(course);
+                if (lessons.size() > 0) {
+                    if (progress.getLessons().containsAll(lessons))
+                        courses.add(course);
+                }
             }
         }
 
@@ -302,9 +304,11 @@ public class CoursesService {
             lessons = lessonRepository.findAllByCourse(course);
             int lessonsNumber = lessons.size(), lessonsViewed = 0;
 
-            for (Lesson lesson : lessons) {
-                if (progress.getLessons().contains(lesson))
-                    lessonsViewed++;
+            if (progress != null) {
+                for (Lesson lesson : lessons) {
+                    if (progress.getLessons().contains(lesson))
+                        lessonsViewed++;
+                }
             }
             boolean completed = lessonsNumber == lessonsViewed;
 
