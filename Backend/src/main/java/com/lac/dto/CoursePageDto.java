@@ -26,5 +26,8 @@ public class CoursePageDto {
     private final int lessonsNumber;
     private final int reviewsNumber;
 
+    private final int lessonsViewed;
+    private final boolean completed;
+
     private final boolean subscribed;
 }

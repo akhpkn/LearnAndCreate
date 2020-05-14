@@ -30,7 +30,8 @@ public class EntityToDtoMapper {
                 .build();
     }
 
-    public CoursePageDto courseToPageDto(Course course, boolean subscribed, int reviewsNumber, int lessonsNumber) {
+    public CoursePageDto courseToPageDto(Course course, boolean subscribed, int reviewsNumber,
+                                         int lessonsNumber, int lessonsViewed, boolean completed) {
         return CoursePageDto.builder()
                 .courseId(course.getCourseId())
                 .title(course.getTitle())
@@ -48,6 +49,8 @@ public class EntityToDtoMapper {
                 .reviewsNumber(reviewsNumber)
                 .subsNumber(course.getUsers().size())
                 .subscribed(subscribed)
+                .lessonsViewed(lessonsViewed)
+                .completed(completed)
                 .build();
     }
 

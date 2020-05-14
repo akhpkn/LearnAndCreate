@@ -1,11 +1,11 @@
 package com.lac.service;
 
-import com.lac.dto.mapper.EntityToDtoMapper;
-import com.lac.model.*;
 import com.lac.dto.CommentDto;
 import com.lac.dto.CoursePageDto;
-import com.lac.payload.FeedbackRequest;
 import com.lac.dto.LessonDto;
+import com.lac.dto.mapper.EntityToDtoMapper;
+import com.lac.model.*;
+import com.lac.payload.FeedbackRequest;
 import com.lac.repository.*;
 import com.lac.security.UserPrincipal;
 import lombok.AllArgsConstructor;
@@ -183,15 +183,25 @@ public class CourseService {
 
     public CoursePageDto getCourseInfo(UserPrincipal currentUser, Long courseId) {
         Course course = courseRepository.findByCourseId(courseId);
-        boolean subscribed = false;
+        boolean subscribed = false, completed = false;
+        int lessonsViewed = 0;
+        List<Lesson> lessons = lessonRepository.findAllByCourse(course);
         if (currentUser != null) {
             User user = userRepository.findByUserId(currentUser.getUserId());
             subscribed = user.getCourses().contains(course);
+
+            Progress progress = progressRepository.findByUser(user);
+            for (Lesson lesson : lessons) {
+                if (progress.getLessons().contains(lesson))
+                    lessonsViewed++;
+            }
+
+            if (lessonsViewed == lessons.size())
+                completed = true;
         }
-//        List<Comment> comments = commentRepository.findAllByCourse(course);
-//        List<Lesson> lessons = lessonRepository.findAllByCourse(course);
         int reviews = commentRepository.countCommentsByCourseId(courseId);
-        int lessons = lessonRepository.countLessonsByCourseId(courseId);
-        return entityToDtoMapper.courseToPageDto(course, subscribed, reviews, lessons);
+
+        return entityToDtoMapper.courseToPageDto(course, subscribed, reviews, lessons.size(),
+                lessonsViewed, completed);
     }
 }
