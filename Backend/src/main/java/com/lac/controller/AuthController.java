@@ -144,6 +144,12 @@ public class AuthController {
                 throw new RuntimeException("User Role not set");
             newUser.setRoles(Collections.singleton(userRole));
 
+            Image image = new Image(user.getPhoto_50(), "image/jpeg");
+
+            fileRepository.save(image);
+
+            newUser.setImage(image);
+
             newUser.setPassword(passwordEncoder.encode(newUser.getPassword()));
 
             User result = userRepository.save(newUser);
