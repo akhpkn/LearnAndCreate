@@ -16,11 +16,8 @@ import com.lac.service.CoursesService;
 import com.lac.service.ImageService;
 import com.lac.service.VideoService;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.text.similarity.FuzzyScore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,7 +27,6 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.validation.Valid;
 import java.util.List;
-import java.util.Locale;
 import java.util.Set;
 
 @RestController
@@ -110,6 +106,26 @@ public class CoursesController {
     public ResponseEntity<?> getMyCoursesInfo(@CurrentUser UserPrincipal currentUser) {
         if (currentUser != null) {
             List<CourseDto> courses = coursesService.getCoursesByUser(currentUser);
+            return new ResponseEntity<>(courses, HttpStatus.OK);
+        }
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    }
+
+    @GetMapping("/me/progress")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<?> getMyCoursesInProgress(@CurrentUser UserPrincipal currentUser) {
+        if (currentUser != null) {
+            List<CourseDto> courses = coursesService.getCoursesInProgress(currentUser);
+            return new ResponseEntity<>(courses, HttpStatus.OK);
+        }
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    }
+
+    @GetMapping("/me/completed")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<?> getMyCompletedCourses(@CurrentUser UserPrincipal currentUser) {
+        if (currentUser != null) {
+            List<CourseDto> courses = coursesService.getCompletedCourses(currentUser);
             return new ResponseEntity<>(courses, HttpStatus.OK);
         }
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);

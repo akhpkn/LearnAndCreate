@@ -36,6 +36,8 @@ public class CoursesService {
 
     private final LessonRepository lessonRepository;
 
+    private final ProgressRepository progressRepository;
+
     private final AmazonS3 awsS3Client;
 
     @Value("${jsa.s3.bucket}")
@@ -193,6 +195,38 @@ public class CoursesService {
     public List<Course> getTopCourses() {
         Pageable pageable = PageRequest.of(0, 5);
         return courseRepository.findTopPopularCourses(pageable);
+    }
+
+    public List<CourseDto> getCoursesInProgress(UserPrincipal currentUser) {
+        User user = userRepository.findByUserId(currentUser.getUserId());
+        Set<Course> courseList = user.getCourses();
+        Progress progress = progressRepository.findByUser(user);
+
+        List<Course> courses = new ArrayList<>();
+        for (Course course : courseList) {
+            List<Lesson> lessons = lessonRepository.findAllByCourse(course);
+                if (!progress.getLessons().containsAll(lessons) || lessons.size() == 0)
+                    courses.add(course);
+        }
+
+        return getCourseDtos(courses);
+    }
+
+    public List<CourseDto> getCompletedCourses(UserPrincipal currentUser) {
+        User user = userRepository.findByUserId(currentUser.getUserId());
+        Set<Course> courseList = user.getCourses();
+        Progress progress = progressRepository.findByUser(user);
+
+        List<Course> courses = new ArrayList<>();
+        for (Course course : courseList) {
+            List<Lesson> lessons = lessonRepository.findAllByCourse(course);
+            if (lessons.size() > 0) {
+                if (progress.getLessons().containsAll(lessons))
+                    courses.add(course);
+            }
+        }
+
+        return getCourseDtos(courses);
     }
 
     public boolean addCourse(Course course) {

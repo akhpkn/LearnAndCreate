@@ -20,4 +20,10 @@ public class UserDto {
     private final String imageUrl;
 
     private final int subscriptions;
+
+    private final int coursesInProgress;
+
+    private final int completedCourses;
+
+    private final int minutes;
 }

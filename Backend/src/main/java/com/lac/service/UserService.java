@@ -2,8 +2,13 @@ package com.lac.service;
 
 import com.lac.dto.UserDto;
 import com.lac.dto.mapper.EntityToDtoMapper;
+import com.lac.model.Course;
+import com.lac.model.Lesson;
+import com.lac.model.Progress;
 import com.lac.model.User;
 import com.lac.payload.ApiResponse;
+import com.lac.repository.LessonRepository;
+import com.lac.repository.ProgressRepository;
 import com.lac.repository.UserRepository;
 import com.lac.security.UserPrincipal;
 import lombok.AllArgsConstructor;
@@ -14,11 +19,18 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.Set;
+
 @Service
 @AllArgsConstructor
 public class UserService {
 
     private final UserRepository userRepository;
+
+    private final LessonRepository lessonRepository;
+
+    private final ProgressRepository progressRepository;
 
     private final PasswordEncoder passwordEncoder;
 
@@ -80,6 +92,37 @@ public class UserService {
     }
 
     public UserDto getUserDto(User user) {
-        return entityToDtoMapper.userToDto(user);
+        Set<Course> courseList = user.getCourses();
+        Progress progress = progressRepository.findByUser(user);
+        int completed = 0, inProgress = courseList.size(), minutes = 0;
+
+        if (progress != null) {
+            for (Course course : courseList) {
+                List<Lesson> lessons = lessonRepository.findAllByCourse(course);
+
+                if (lessons.size() > 0) {
+                    boolean containsAll = true;
+
+                    for (Lesson lesson : lessons) {
+                        if (!progress.getLessons().contains(lesson))
+                            containsAll = false;
+                        else {
+                            StringBuilder number = new StringBuilder();
+                            for (char c : lesson.getDuration().toCharArray()) {
+                                if (c >= '0' && c <= '9')
+                                    number.append(c);
+                            }
+                            minutes += Integer.parseInt(number.toString());
+                        }
+                    }
+
+                    if (containsAll) {
+                        completed++;
+                        inProgress--;
+                    }
+                }
+            }
+        }
+        return entityToDtoMapper.userToDto(user, completed, inProgress, minutes);
     }
 }

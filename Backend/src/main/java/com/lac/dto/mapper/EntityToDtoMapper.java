@@ -71,13 +71,13 @@ public class EntityToDtoMapper {
                 .duration(lesson.getDuration())
                 .lessonId(lesson.getLessonId())
                 .title(lesson.getTitle())
-                .videoId(lesson.getVideo().getFileId())
-                .videoUrl(lesson.getVideo().getUrl())
+                .videoId(lesson.getVideo() == null ? 0 : lesson.getVideo().getFileId())
+                .videoUrl(lesson.getVideo() == null ? "url" : lesson.getVideo().getUrl())
                 .viewed(viewed)
                 .build();
     }
 
-    public UserDto userToDto(User user) {
+    public UserDto userToDto(User user, int completed, int inProgress, int minutes) {
         return UserDto.builder()
                 .email(user.getEmail())
                 .imageUrl(user.getImage() == null ? "https://lacbucket.s3.eu-west-2.amazonaws.com/resources/avatar/7fbcc95cc521fb563fa9f7ae5ae37736.png" : user.getImage().getUrl())
@@ -86,6 +86,9 @@ public class EntityToDtoMapper {
                 .surname(user.getSurname())
                 .subscriptions(user.getCourses().size())
                 .username(user.getUsername())
+                .completedCourses(completed)
+                .coursesInProgress(inProgress)
+                .minutes(minutes)
                 .build();
     }
 }
