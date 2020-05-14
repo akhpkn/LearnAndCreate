@@ -18,14 +18,27 @@ public class EntityToDtoMapper {
                 .build();
     }
 
-    public ExtendedCourseDto courseToExtendedDto(Course course) {
-        return ExtendedCourseDto.builder()
+    public SearchPageCourseDto courseToSearchPageDto(Course course) {
+        return SearchPageCourseDto.builder()
                 .courseId(course.getCourseId())
                 .description(course.getDescription())
                 .imageUrl(course.getImage() == null ? "https://lacbucket.s3.eu-west-2.amazonaws.com/resources/avatar/7fbcc95cc521fb563fa9f7ae5ae37736.png" : course.getImage().getUrl())
                 .mark(course.getMark())
                 .marksNumber(course.getNumMarks())
                 .subsNumber(course.getUsers().size())
+                .title(course.getTitle())
+                .build();
+    }
+
+    public UserPageCourseDto courseToUserPageDto(Course course, int lessonsNumber,
+                                                 int lessonsViewed, boolean completed) {
+        return UserPageCourseDto.builder()
+                .completed(completed)
+                .courseId(course.getCourseId())
+                .description(course.getDescription())
+                .imageUrl(course.getImage() == null ? "https://lacbucket.s3.eu-west-2.amazonaws.com/resources/avatar/7fbcc95cc521fb563fa9f7ae5ae37736.png" : course.getImage().getUrl())
+                .lessonsNumber(lessonsNumber)
+                .lessonsViewed(lessonsViewed)
                 .title(course.getTitle())
                 .build();
     }

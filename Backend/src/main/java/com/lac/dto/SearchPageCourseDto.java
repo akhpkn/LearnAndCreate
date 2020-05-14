@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @Builder
 @Getter
-public class ExtendedCourseDto {
+public class SearchPageCourseDto {
 
     private final long courseId;
 

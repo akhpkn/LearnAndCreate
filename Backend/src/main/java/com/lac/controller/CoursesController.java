@@ -1,7 +1,8 @@
 package com.lac.controller;
 
 import com.lac.dto.CourseDto;
-import com.lac.dto.ExtendedCourseDto;
+import com.lac.dto.SearchPageCourseDto;
+import com.lac.dto.UserPageCourseDto;
 import com.lac.model.Category;
 import com.lac.model.Course;
 import com.lac.model.User;
@@ -105,7 +106,7 @@ public class CoursesController {
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> getMyCoursesInfo(@CurrentUser UserPrincipal currentUser) {
         if (currentUser != null) {
-            List<CourseDto> courses = coursesService.getCoursesByUser(currentUser);
+            List<UserPageCourseDto> courses = coursesService.getCoursesByUser(currentUser);
             return new ResponseEntity<>(courses, HttpStatus.OK);
         }
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -115,7 +116,7 @@ public class CoursesController {
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> getMyCoursesInProgress(@CurrentUser UserPrincipal currentUser) {
         if (currentUser != null) {
-            List<CourseDto> courses = coursesService.getCoursesInProgress(currentUser);
+            List<UserPageCourseDto> courses = coursesService.getCoursesInProgress(currentUser);
             return new ResponseEntity<>(courses, HttpStatus.OK);
         }
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -125,7 +126,7 @@ public class CoursesController {
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> getMyCompletedCourses(@CurrentUser UserPrincipal currentUser) {
         if (currentUser != null) {
-            List<CourseDto> courses = coursesService.getCompletedCourses(currentUser);
+            List<UserPageCourseDto> courses = coursesService.getCompletedCourses(currentUser);
             return new ResponseEntity<>(courses, HttpStatus.OK);
         }
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -170,7 +171,7 @@ public class CoursesController {
 
     @GetMapping("/search/dto")
     public ResponseEntity<?> getCoursesBySubstring(@RequestParam(name = "s") String substring) {
-        List<ExtendedCourseDto> courses = coursesService.getCoursesDtoByTitleSubstring(substring);
+        List<SearchPageCourseDto> courses = coursesService.getCoursesDtoByTitleSubstring(substring);
         if (courses.isEmpty()) {
             courses = coursesService.getTopCoursesDto();
         }

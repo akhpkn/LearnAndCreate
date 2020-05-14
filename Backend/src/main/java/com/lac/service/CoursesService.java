@@ -2,15 +2,14 @@ package com.lac.service;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.lac.dto.CourseDto;
-import com.lac.dto.ExtendedCourseDto;
+import com.lac.dto.SearchPageCourseDto;
+import com.lac.dto.UserPageCourseDto;
 import com.lac.dto.mapper.EntityToDtoMapper;
 import com.lac.model.*;
-import com.lac.dto.CoursePageDto;
 import com.lac.payload.SortName;
 import com.lac.repository.*;
 import com.lac.security.UserPrincipal;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.similarity.FuzzyScore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,16 +62,10 @@ public class CoursesService {
         return courseRepository.findAllCourses();
     }
 
-    public List<CourseDto> getCoursesByUser(UserPrincipal currentUser) {
+    public List<UserPageCourseDto> getCoursesByUser(UserPrincipal currentUser) {
         User user = userRepository.findByUserId(currentUser.getUserId());
-        Set<Course> courseList = user.getCourses();
-
-        List<CourseDto> courses = new ArrayList<>();
-        for (Course course : courseList) {
-            CourseDto dto = entityToDtoMapper.courseToDto(course);
-            courses.add(dto);
-        }
-        return courses;
+        List<Course> courseList = new ArrayList<>(user.getCourses());
+        return getUserPageCourseDtos(courseList, currentUser);
     }
 
     public List<CourseDto> getFilteredCourses(Long categoryId, String substring, Integer sortId) {
@@ -118,11 +111,11 @@ public class CoursesService {
         return getCourseDtos(courseList);
     }
 
-    public List<ExtendedCourseDto> getCoursesDtoByTitleSubstring(String substring) {
+    public List<SearchPageCourseDto> getCoursesDtoByTitleSubstring(String substring) {
 //        List<Course> courseList = courseRepository.findAllByTitleContaining(substring);
         List<Course> courseList = courseRepository.findAll();
         List<Course> courses = fuzzySearch(courseList, substring);
-        return getExtendedCourseDtos(courses);
+        return getSearchPageCourseDtos(courses);
     }
 
     public List<Course> getCoursesByTitleSubstring(String substring) {
@@ -168,8 +161,8 @@ public class CoursesService {
         return getCourseDtos(courses);
     }
 
-    public List<ExtendedCourseDto> getTopCoursesDto() {
-        List<ExtendedCourseDto> courses = new ArrayList<>();
+    public List<SearchPageCourseDto> getTopCoursesDto() {
+        List<SearchPageCourseDto> courses = new ArrayList<>();
         List<Course> courseList = courseRepository.findTopPopularCourses();
         int counter = 0;
         for (Course course : courseList) {
@@ -182,7 +175,7 @@ public class CoursesService {
 //                List<Comment> comments = commentRepository.findAllByCourse(course);
 //                List<Lesson> lessons = lessonRepository.findAllByCourse(course);
 //                CoursePageDto info = course.courseInfo(false, comments.size(), lessons.size());
-                ExtendedCourseDto dto = entityToDtoMapper.courseToExtendedDto(course);
+                SearchPageCourseDto dto = entityToDtoMapper.courseToSearchPageDto(course);
                 courses.add(dto);
                 counter++;
                 if (counter == 5)
@@ -197,7 +190,7 @@ public class CoursesService {
         return courseRepository.findTopPopularCourses(pageable);
     }
 
-    public List<CourseDto> getCoursesInProgress(UserPrincipal currentUser) {
+    public List<UserPageCourseDto> getCoursesInProgress(UserPrincipal currentUser) {
         User user = userRepository.findByUserId(currentUser.getUserId());
         Set<Course> courseList = user.getCourses();
         Progress progress = progressRepository.findByUser(user);
@@ -209,10 +202,10 @@ public class CoursesService {
                     courses.add(course);
         }
 
-        return getCourseDtos(courses);
+        return getUserPageCourseDtos(courses, currentUser);
     }
 
-    public List<CourseDto> getCompletedCourses(UserPrincipal currentUser) {
+    public List<UserPageCourseDto> getCompletedCourses(UserPrincipal currentUser) {
         User user = userRepository.findByUserId(currentUser.getUserId());
         Set<Course> courseList = user.getCourses();
         Progress progress = progressRepository.findByUser(user);
@@ -226,7 +219,7 @@ public class CoursesService {
             }
         }
 
-        return getCourseDtos(courses);
+        return getUserPageCourseDtos(courses, currentUser);
     }
 
     public boolean addCourse(Course course) {
@@ -291,12 +284,35 @@ public class CoursesService {
         return courses;
     }
 
-    private List<ExtendedCourseDto> getExtendedCourseDtos(List<Course> courseList) {
-        List<ExtendedCourseDto> courses = new ArrayList<>();
+    private List<SearchPageCourseDto> getSearchPageCourseDtos(List<Course> courseList) {
+        List<SearchPageCourseDto> courses = new ArrayList<>();
         for (Course course : courseList) {
-            ExtendedCourseDto dto = entityToDtoMapper.courseToExtendedDto(course);
+            SearchPageCourseDto dto = entityToDtoMapper.courseToSearchPageDto(course);
             courses.add(dto);
         }
+        return courses;
+    }
+
+    private List<UserPageCourseDto> getUserPageCourseDtos(List<Course> courseList, UserPrincipal currentUser) {
+        List<UserPageCourseDto> courses = new ArrayList<>();
+        Progress progress = progressRepository.findByUserId(currentUser.getUserId());
+        List<Lesson> lessons;
+
+        for (Course course : courseList) {
+            lessons = lessonRepository.findAllByCourse(course);
+            int lessonsNumber = lessons.size(), lessonsViewed = 0;
+
+            for (Lesson lesson : lessons) {
+                if (progress.getLessons().contains(lesson))
+                    lessonsViewed++;
+            }
+            boolean completed = lessonsNumber == lessonsViewed;
+
+            UserPageCourseDto dto = entityToDtoMapper.courseToUserPageDto(course, lessonsNumber,
+                    lessonsViewed, completed);
+            courses.add(dto);
+        }
+
         return courses;
     }
 
