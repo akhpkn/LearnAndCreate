@@ -218,7 +218,7 @@ public class CoursesController {
                                                 @RequestParam(value = "substring") String substring,
                                                 @RequestParam(value = "sort") Integer sortId,
                                                 @CurrentUser UserPrincipal currentUser) {
-        List<CourseDto> courses = coursesService.getFilteredCourses(categoryId, substring, sortId);
+        List<SearchPageCourseDto> courses = coursesService.getFilteredCourses(categoryId, substring, sortId);
         return new ResponseEntity<>(courses, HttpStatus.OK);
     }
 }

@@ -68,11 +68,13 @@ public class CoursesService {
         return getUserPageCourseDtos(courseList, currentUser);
     }
 
-    public List<CourseDto> getFilteredCourses(Long categoryId, String substring, Integer sortId) {
-        List<CourseDto> courses;
+    public List<SearchPageCourseDto> getFilteredCourses(Long categoryId, String substring, Integer sortId) {
+        List<SearchPageCourseDto> courses;
 
-        if (categoryId == null && substring.isEmpty())
-            courses = getCourses();
+        if (categoryId == null && substring.isEmpty()) {
+            List<Course> coursesList = courseRepository.findAll();
+            courses = getSearchPageCourseDtos(coursesList);
+        }
         else if (categoryId == null)
             courses = getCoursesByTitleSubstringAndSorted(substring, sortId);
         else if (substring.isEmpty())
@@ -93,7 +95,7 @@ public class CoursesService {
         return courseRepository.findAllByCategory(category);
     }
 
-    private List<CourseDto> getCoursesByCategoryAndSorted(Long categoryId, Integer sortId) {
+    private List<SearchPageCourseDto> getCoursesByCategoryAndSorted(Long categoryId, Integer sortId) {
         Category category = categoryRepository.findByCategoryId(categoryId);
         List<Course> courseList;
 
@@ -108,7 +110,7 @@ public class CoursesService {
         }
         else courseList = courseRepository.findAllByCategory(category);
 
-        return getCourseDtos(courseList);
+        return getSearchPageCourseDtos(courseList);
     }
 
     public List<SearchPageCourseDto> getCoursesDtoByTitleSubstring(String substring) {
@@ -122,7 +124,7 @@ public class CoursesService {
         return courseRepository.findAllByTitleContaining(substring);
     }
 
-    private List<CourseDto> getCoursesByTitleSubstringAndSorted(String substring, Integer sortId) {
+    private List<SearchPageCourseDto> getCoursesByTitleSubstringAndSorted(String substring, Integer sortId) {
         List<Course> courseList;
         courseList = courseRepository.findAll();
         List<Course> courses = fuzzySearch(courseList, substring);
@@ -139,11 +141,11 @@ public class CoursesService {
 //        }
 //        else courseList = courseRepository.findAllByTitleContaining(substring);
 
-        return getCourseDtos(courses);
+        return getSearchPageCourseDtos(courses);
     }
 
-    private List<CourseDto> getCoursesByCategoryAndTitleAndSorted(Long categoryId, String substring,
-                                                                  Integer sortId) {
+    private List<SearchPageCourseDto> getCoursesByCategoryAndTitleAndSorted(Long categoryId, String substring,
+                                                                            Integer sortId) {
         Category category = categoryRepository.findByCategoryId(categoryId);
         List<Course> courseList = courseRepository.findAllByCategory(category);
         List<Course> courses = fuzzySearch(courseList, substring);
@@ -158,7 +160,7 @@ public class CoursesService {
 //        }
 //        else courseList = courseRepository.findAllByCategoryAndTitleContaining(category, substring);
 
-        return getCourseDtos(courses);
+        return getSearchPageCourseDtos(courses);
     }
 
     public List<SearchPageCourseDto> getTopCoursesDto() {
