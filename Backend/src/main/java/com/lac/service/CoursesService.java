@@ -312,7 +312,7 @@ public class CoursesService {
                         lessonsViewed++;
                 }
             }
-            boolean completed = lessonsNumber == lessonsViewed;
+            boolean completed = lessonsViewed > 0 && lessonsNumber == lessonsViewed;
 
             UserPageCourseDto dto = entityToDtoMapper.courseToUserPageDto(course, lessonsNumber,
                     lessonsViewed, completed);
