@@ -191,13 +191,14 @@ public class CourseService {
             subscribed = user.getCourses().contains(course);
 
             Progress progress = progressRepository.findByUser(user);
-            for (Lesson lesson : lessons) {
-                if (progress.getLessons().contains(lesson))
-                    lessonsViewed++;
-            }
+            if (progress != null) {
+                for (Lesson lesson : lessons) {
+                    if (progress.getLessons().contains(lesson))
+                        lessonsViewed++;
+                }
 
-            if (lessonsViewed == lessons.size())
-                completed = true;
+                completed = lessonsViewed > 0 && lessonsViewed == lessons.size();
+            }
         }
         int reviews = commentRepository.countCommentsByCourseId(courseId);
 
